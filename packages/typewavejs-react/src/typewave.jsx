@@ -7,18 +7,19 @@ import {
 	forwardRef
 } from 'react';
 import PropTypes from 'prop-types';
-import usePrevious from '@/hooks/usePrevious';
+import usePrevious from './hooks/usePrevious';
 import {
-	addIdsToElements,
-	insertContentById,
-	insertContentByPreference,
 	processEvent,
 	processEvents,
+	resetEvents
+} from './utils/eventsUtils';
+import {
+	insertContentById,
+	insertContentByPreference,
 	removeContent,
 	removeElement,
-	resetEvents
-} from '@/utils/typewriterUtils';
-import './typewriter.css';
+} from './utils/elementsUtils';
+import './typewave.css';
 
 // const instruction = {
 // 	action: 'type',
@@ -34,7 +35,7 @@ import './typewriter.css';
 // 	DELETE: 'delete'
 // };
 
-const Typewriter = forwardRef(({
+const TypeWave = forwardRef(({
 	play = true,
 	events: eventsProp,
 	component: Component = 'div',
@@ -46,6 +47,7 @@ const Typewriter = forwardRef(({
 	onEvent,
 	...props
 }, ref) => {
+	console.log(eventsProp)
 	const intervalRef = useRef();
 
 	// OPTIONS
@@ -76,7 +78,7 @@ const Typewriter = forwardRef(({
 	), [elements]);
 
 	// EVENTS STATES
-	const [events, setEvents] = useState(processEvents(events) ?? []);
+	const [events, setEvents] = useState(processEvents(eventsProp) ?? []);
 	const [eventIndex, setEventIndex] = useState(0);
 	const currentEvent = useMemo(() => queue[eventIndex], [events, eventIndex]);
 
@@ -104,11 +106,11 @@ const Typewriter = forwardRef(({
 		const { value, instant, animation, animationIndex } = currentEvent;
 		let content;
 
-		if(instant){
+		if (instant) {
 			return insertContentByPreference(prevElements, value, cursorIndex, 'outerMost');
 		} else {
 			const { element, parentId } = animation[animationIndex];
-			if(parentId)
+			if (parentId)
 				return insertContentById(prevElements, parentId, element, cursorIndex);
 			else
 				return insertContentByPreference(prevElements, element, cursorIndex);
@@ -207,7 +209,7 @@ const Typewriter = forwardRef(({
 	);
 });
 
-Typewriter.propTypes = {
+TypeWave.propTypes = {
 	play: PropTypes.bool,
 	events: PropTypes.arrayOf(
 		PropTypes.shape({
@@ -218,15 +220,15 @@ Typewriter.propTypes = {
 				'pause',
 				'loop',
 				'options'
-			]),
-			value: PropTypes.any,
+			]).isRequired,
+			value: PropTypes.any.isRequired,
 			typeSpeed: PropTypes.number,
 			moveSpeed: PropTypes.number,
 			deleteSpeed: PropTypes.number,
 			instant: PropTypes.bool,
 			remove: PropTypes.bool
 		})
-	),
+	).isRequired,
 	component: PropTypes.elementType,
 	showCursor: PropTypes.bool,
 	cursorCharacter: PropTypes.string,
@@ -236,4 +238,4 @@ Typewriter.propTypes = {
 	onEvent: PropTypes.func
 };
 
-export default Typewriter;
+export default TypeWave;

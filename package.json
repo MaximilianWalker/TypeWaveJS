@@ -1,0 +1,22 @@
+{
+  "name": "typewavejs-monorepo",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "dev": "node ./scripts/dev.js",
+    "react": "node ./scripts/dev.js typewavejs-react"
+  },
+  "keywords": [],
+  "author": "Diogo Marques Crava",
+  "license": "ISC",
+  "description": "",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "eslint": "^8.15.0",
+    "prettier": "^2.7.1",
+    "vite": "^5.0.11"
+  }
+}
