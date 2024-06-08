@@ -385,126 +385,30 @@ describe('findElementAtIndex', () => {
     });
 });
 
-// describe('insertContent', () => {
-//     it('inserts characters in the middle of a text node', () => {
-//         const nodes = (<div>Hello world!</div>);
-//         const { container } = render(insertContent(nodes, ", test", 5));
-//         expect(container.textContent).toBe("Hello, test world!");
-//     });
-
-//     it('inserts characters at the start of a text node', () => {
-//         const nodes = (<div>Hello world!</div>);
-//         const { container } = render(insertContent(nodes, "Start ", 0));
-//         expect(container.textContent).toBe("Start Hello world!");
-//     });
-
-//     it('inserts characters at the end of a text node', () => {
-//         const nodes = (<div>Hello world!</div>);
-//         const { container } = render(insertContent(nodes, " End", 11));
-//         expect(container.textContent).toBe("Hello world! End");
-//     });
-
-//     it('handles nested elements correctly', () => {
-//         const nodes = (<div><span>Hello</span><span> world!</span></div>);
-//         const { container } = render(insertContent(nodes, ", test", 5));
-//         const [firstSpan, middleText, secondSpan] = container.children;
-//         expect(firstSpan.textContent).toBe("Hello");
-//         expect(middleText.textContent).toBe(", test");
-//         expect(secondSpan.textContent).toBe(" world!");
-//     });
-
-//     it('handles multiple nested elements correctly', () => {
-//         const nodes = (<div><span>Hello</span> world! <span>How</span> are you?</div>);
-//         const { container } = render(insertContent(nodes, ", test", 12));
-//         expect(container.textContent).toBe("Hello world!, test How are you?");
-//     });
-
-//     it('handles empty elements correctly', () => {
-//         const nodes = (<div></div>);
-//         const { container } = render(insertContent(nodes, ", test", 0));
-//         expect(container.textContent).toBe(", test");
-//     });
-
-//     it('inserts a React element in the middle of a text node', () => {
-//         const nodes = (<div>Hello world!</div>);
-//         const reactElement = (<span>React</span>);
-//         const { container } = render(insertContent(nodes, reactElement, 5));
-//         const [beforeSpan, insertedSpan, afterSpan] = container.children;
-//         expect(beforeSpan.textContent).toBe("Hello");
-//         expect(insertedSpan.textContent).toBe("React");
-//         expect(afterSpan.textContent).toBe(" world!");
-//     });
-
-//     it('inserts a React element at the start of a text node', () => {
-//         const nodes = (<div>Hello world!</div>);
-//         const reactElement = (<span>Start</span>);
-//         const { container } = render(insertContent(nodes, reactElement, 0));
-//         const [insertedSpan, afterSpan] = container.children;
-//         expect(insertedSpan.textContent).toBe("Start");
-//         expect(afterSpan.textContent).toBe("Hello world!");
-//     });
-
-//     it('inserts a React element at the end of a text node', () => {
-//         const nodes = (<div>Hello world!</div>);
-//         const reactElement = (<span>End</span>);
-//         const { container } = render(insertContent(nodes, reactElement, 11));
-//         const [beforeSpan, insertedSpan] = container.children;
-//         expect(beforeSpan.textContent).toBe("Hello world!");
-//         expect(insertedSpan.textContent).toBe("End");
-//     });
-
-//     it('handles deeply nested structures correctly', () => {
-//         const nodes = (
-//             <div>
-//                 <div>
-//                     <span>Hello</span>
-//                     <div>
-//                         <span> world!</span>
-//                     </div>
-//                 </div>
-//             </div>
-//         );
-//         const { container } = render(insertContent(nodes, ", test", 5));
-//         const firstSpan = container.querySelector('span');
-//         const insertedText = container.querySelector('div div').childNodes[1];
-//         const secondSpan = container.querySelector('div div div span');
-
-//         expect(firstSpan.textContent).toBe("Hello");
-//         expect(insertedText.textContent).toBe(", test");
-//         expect(secondSpan.textContent).toBe(" world!");
-//     });
-
-//     it('does not modify the original structure when index is out of bounds', () => {
-//         const nodes = (<div>Hello world!</div>);
-//         const { container } = render(insertContent(nodes, ", test", 50));
-//         expect(container.textContent).toBe("Hello world!");
-//     });
-// });
-
 describe('insertContentByPreference', () => {
     it('inserts characters at specified index in a simple string', () => {
         const nodes = "Hello, world!";
         const modified = insertContentByPreference(nodes, " test", 5);
-        expect(modified).toBe("Hello test, world!");
+        expect(modified).toEqual(["Hello test, world!"]);
     });
 
     it('inserts characters at the start', () => {
         const nodes = "Hello";
         const modified = insertContentByPreference(nodes, " test", 0);
-        expect(modified).toBe(" testHello");
+        expect(modified).toEqual([" testHello"]);
     });
 
     it('inserts characters at the end', () => {
         const nodes = "Hello";
         const modified = insertContentByPreference(nodes, " test", 5);
-        expect(modified).toBe("Hello test");
+        expect(modified).toEqual(["Hello test"]);
     });
 
     // create a tests that handle nodes as an empty array
     it('inserts characters at the end of an empty array', () => {
         const nodes = [];
         const modified = insertContentByPreference(nodes, " test", 0);
-        expect(modified).toBe(" test");
+        expect(modified).toEqual([" test"]);
     });
 
     it('handles nested structures correctly: leftMost', () => {
@@ -606,7 +510,7 @@ describe('insertContentById', () => {
     it('should insert content into a string when input is a string and id is null', () => {
         const element = "Hello World";
         const updatedElement = insertContentById(element, null, ' Inserted', 5);
-        expect(updatedElement).toBe('Hello Inserted World');
+        expect(updatedElement).toEqual(['Hello Inserted World']);
     });
 
     it('should insert content at the first text index when ID is null', () => {

@@ -260,6 +260,9 @@ const shouldInsertById = ({ currentElement, parent, id, index, currentIndex, dep
 );
 
 export function insertContent(elements, content, index = 0, shouldInsert = shouldInsertLeftMost) {
+    if (Array.isArray(elements) && elements.length === 0)
+        return [content];
+
     const totalLength = countCharacters(elements);
     const contentLength = countCharacters(content);
 
@@ -327,11 +330,10 @@ export function insertContent(elements, content, index = 0, shouldInsert = shoul
             }
         });
 
-        return newElements.length === 1 ? newElements[0] : newElements;
+        return newElements;
     };
 
-    const result = _insertContent(elements);
-    return result.length === 1 ? result[0] : result;
+    return _insertContent(elements);;
 }
 
 export function insertContentById(elements, id, content, index = 0) {

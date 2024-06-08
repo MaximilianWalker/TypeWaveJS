@@ -7,8 +7,13 @@ const searchTerm = process.argv[3];
 
 process.chdir(path.resolve(__dirname, '..'));
 
+if (!packageName) {
+    console.error('Please provide a package name.');
+    process.exit(1);
+}
+
 if (!packageName || !searchTerm) {
-    console.error('Please provide both a package name and a search term.');
+    console.error('Please provide an example to run.');
     process.exit(1);
 }
 
