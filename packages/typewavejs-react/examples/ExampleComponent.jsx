@@ -10,8 +10,6 @@ function ExampleComponent() {
             .catch(error => console.error(`Failed to load the component from ${exampleDir}`, error));
     }, []);
 
-    console.log('Component:', Component);
-
     return Component ? <Component /> : <div>Loading...</div>;
 };
 

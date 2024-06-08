@@ -1,3 +1,14 @@
 .typewriter__cursor {
     width: 0;
+    animation: 1s blink step-end infinite;
+}
+
+@keyframes blink {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
 }

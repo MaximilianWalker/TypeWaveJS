@@ -1,4 +1,4 @@
-import {
+import React, {
 	useState,
 	useEffect,
 	useRef,
@@ -11,7 +11,8 @@ import usePrevious from './hooks/usePrevious';
 import {
 	processEvent,
 	processEvents,
-	resetEvents
+	resetEvents,
+	EVENT_TYPES
 } from './utils/eventsUtils';
 import {
 	insertContentById,
@@ -47,7 +48,6 @@ const TypeWave = forwardRef(({
 	onEvent,
 	...props
 }, ref) => {
-	console.log(eventsProp)
 	const intervalRef = useRef();
 
 	// OPTIONS
@@ -80,9 +80,9 @@ const TypeWave = forwardRef(({
 	// EVENTS STATES
 	const [events, setEvents] = useState(processEvents(eventsProp) ?? []);
 	const [eventIndex, setEventIndex] = useState(0);
-	const currentEvent = useMemo(() => queue[eventIndex], [events, eventIndex]);
+	const currentEvent = useMemo(() => events[eventIndex], [events, eventIndex]);
 
-	const prevPlay = usePrevious(playProp);
+	const prevPlay = usePrevious(play);
 
 	// const [iteration, setIteration] = useState(0);
 
@@ -103,17 +103,16 @@ const TypeWave = forwardRef(({
 	};
 
 	const onType = () => setElements((prevElements) => {
-		const { value, instant, animation, animationIndex } = currentEvent;
-		let content;
-
+		const { value, instant, animation } = currentEvent;
 		if (instant) {
 			return insertContentByPreference(prevElements, value, cursorIndex, 'outerMost');
 		} else {
-			const { element, parentId } = animation[animationIndex];
+			const { index, elements } = animation;
+			const { element, parentId } = elements[index];
 			if (parentId)
 				return insertContentById(prevElements, parentId, element, cursorIndex);
 			else
-				return insertContentByPreference(prevElements, element, cursorIndex);
+				return insertContentByPreference(prevElements, element, cursorIndex, 'outerMost');
 		}
 	});
 
@@ -146,6 +145,7 @@ const TypeWave = forwardRef(({
 	const onAnimation = () => {
 		let animationFunction;
 		let animationSpeed;
+		console.log(currentEvent)
 		switch (currentEvent.type) {
 			case 'type':
 				animationFunction = onType;
@@ -177,17 +177,19 @@ const TypeWave = forwardRef(({
 			if (animationFunction) animationFunction();
 			if (onEvent) onEvent(currentEvent, eventIndex);
 
-			const { animetionSize: size, animationIndex: index, remove } = currentEvent;
+			const { animation, remove } = currentEvent;
+			const { index, size } = animation;
+
 			if (!size || !index || index === size) {
 				if (remove) {
 					setEvents(prevEvents => prevEvents.filter((_, index) => index != eventIndex));
-				} else {
+				} else if (eventIndex < events.length) {
 					setEventIndex(prevIndex => prevIndex + 1);
 				}
 			} else {
 				setEvents(prevEvents => prevEvents.map((event, i) => {
 					if (i === eventIndex)
-						event.animationIndex++;
+						event.animation.index++;
 					return event;
 				}));
 			}
@@ -195,12 +197,15 @@ const TypeWave = forwardRef(({
 	};
 
 	useEffect(() => {
-		if (play)
+		if (play && currentEvent)
 			onAnimation();
 		else
 			clearInterval(intervalRef.current);
 		return () => clearInterval(intervalRef.current);
 	}, [play, currentEvent]);
+
+	console.log('elements', elements);
+	console.log('processedElements', processedElements);
 
 	return (
 		<Component {...props}>
@@ -213,14 +218,7 @@ TypeWave.propTypes = {
 	play: PropTypes.bool,
 	events: PropTypes.arrayOf(
 		PropTypes.shape({
-			action: PropTypes.oneOfType([
-				'type',
-				'move',
-				'delete',
-				'pause',
-				'loop',
-				'options'
-			]).isRequired,
+			type: PropTypes.oneOf(EVENT_TYPES).isRequired,
 			value: PropTypes.any.isRequired,
 			typeSpeed: PropTypes.number,
 			moveSpeed: PropTypes.number,

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { TypeWave } from '../../src';
 
 const animation = [
@@ -22,15 +22,11 @@ const animation = [
 function Example() {
     const [events, setEvents] = useState(animation);
 
-    // function handleNext() {
-    //     setEvents(resetEvents(events));
-    // }
-
     return (
         <div>
             <h1>Typewave.js React Example</h1>
             <h1>Basic</h1>
-            <TypeWave events={events} onComplete={handleNext} />
+            <TypeWave events={events} />
         </div>
     );
 }

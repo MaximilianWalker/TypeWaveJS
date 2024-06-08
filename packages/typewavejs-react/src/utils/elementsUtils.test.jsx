@@ -13,17 +13,17 @@ import {
     insertContentByPreference,
     insertContentById,
     removeContent
-} from './typewriterUtils';
+} from './elementsUtils';
 
-jest.mock('uuid', () => {
+vi.mock('uuid', () => {
     let callCount = 0;
     return {
-        v4: jest.fn(() => `mock-uuid-${callCount++}`)
+        v4: vi.fn(() => `mock-uuid-${callCount++}`)
     };
 });
 
 beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     let callCount = 0;
     uuidv4.mockImplementation(() => `mock-uuid-${callCount++}`);
 });
@@ -315,7 +315,7 @@ describe('countCharacters', () => {
         expect(countCharacters(nodes)).toBe(0);
     });
 
-    test('countCharacters: stress test', () => {
+    it('countCharacters: stress test', () => {
         const complexStructure = addIdsToElements(
             <div>
                 <ul>
@@ -500,6 +500,13 @@ describe('insertContentByPreference', () => {
         expect(modified).toBe("Hello test");
     });
 
+    // create a tests that handle nodes as an empty array
+    it('inserts characters at the end of an empty array', () => {
+        const nodes = [];
+        const modified = insertContentByPreference(nodes, " test", 0);
+        expect(modified).toBe(" test");
+    });
+
     it('handles nested structures correctly: leftMost', () => {
         const nodes = addIdsToElements(<div><span>Hello</span><span> world!</span></div>);
         const { container } = render(insertContentByPreference(nodes, ", test", 5, "leftMost"));
@@ -516,7 +523,7 @@ describe('insertContentByPreference', () => {
         expect(span.textContent).toBe(", testHello");
     });
 
-    it('handles nested structures correctly: middle 1', () => {
+    it('handles nested structures correctly: outerMost 1', () => {
         const nodes = addIdsToElements(<div><span>Hello</span><span> world!</span></div>);
         const { container } = render(insertContentByPreference(nodes, ", test", 5, "outerMost"));
         const [firstSpan, middleText, secondSpan] = container.firstChild.childNodes;
@@ -525,7 +532,7 @@ describe('insertContentByPreference', () => {
         expect(secondSpan.textContent).toBe(" world!");
     });
 
-    it('handles nested structures correctly: middle 2', () => {
+    it('handles nested structures correctly: outerMost 2', () => {
         const nodes = addIdsToElements(<div>Hello<span> world!</span></div>);
         const { container } = render(insertContentByPreference(nodes, ", test", 5, "outerMost"));
         const [text, span] = container.firstChild.childNodes;
@@ -533,7 +540,7 @@ describe('insertContentByPreference', () => {
         expect(span.textContent).toBe(" world!");
     });
 
-    it('handles nested structures correctly: middle 3', () => {
+    it('handles nested structures correctly: outerMost 3', () => {
         const nodes = addIdsToElements(<div><span>Hello</span> world!</div>);
         const { container } = render(insertContentByPreference(nodes, ", test", 5, "outerMost"));
         const [span, text] = container.firstChild.childNodes;
@@ -541,7 +548,7 @@ describe('insertContentByPreference', () => {
         expect(text.textContent).toBe(", test world!");
     });
 
-    it('handles nested structures correctly: middle 4', () => {
+    it('handles nested structures correctly: outerMost 4', () => {
         const nodes = addIdsToElements(<span>Hello</span>);
         const { container } = render(insertContentByPreference(nodes, ", test", 5, "outerMost"));
         const [firstSpan, middleText] = container.childNodes;
@@ -549,7 +556,7 @@ describe('insertContentByPreference', () => {
         expect(middleText.textContent).toBe(", test");
     });
 
-    it('handles nested structures correctly: middle 5: inserting react elements', () => {
+    it('handles nested structures correctly: outerMost 5: inserting react elements', () => {
         const nodes = addIdsToElements(<span>Hello</span>);
         const insertingNodes = addIdsToElements(<span> world!</span>);
         const { container } = render(insertContentByPreference(nodes, insertingNodes, 5, "outerMost"));

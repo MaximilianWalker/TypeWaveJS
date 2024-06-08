@@ -1,22 +1,39 @@
-export const EVENT_TYPES = ['type', 'delete', 'move'];
+import {
+    addIdsToElements,
+    getAnimationList,
+    countCharacters
+} from './elementsUtils';
+
+export const EVENT_TYPES = [
+    'type',
+    'move',
+    'delete',
+    'pause',
+    'loop',
+    'options'
+];
 
 export function processEvent(event) {
     const { type, value, instant } = event;
     if (type === 'type') {
         const newElements = addIdsToElements(value);
+        const animationList = getAnimationList(newElements);
         event = {
             ...event,
             value: newElements,
             animation: !instant ? {
-                elements: getAnimationList(newElements),
+                elements: animationList,
                 index: 0,
-                size: countCharacters(newElements)
+                size: animationList.length
             } : null,
         };
     } else if (['delete', 'move'].includes(event.type)) {
         event = {
             ...event,
-            animationSize: !instant ? value : null
+            animation: !instant ? {
+                index: 0,
+                size: value
+            } : null
         };
     }
     return event;
