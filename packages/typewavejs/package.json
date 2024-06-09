@@ -1,0 +1,26 @@
+{
+  "name": "typewavejs",
+  "version": "0.0.1",
+  "description": "",
+  "author": "Diogo Marques Crava",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.esm.js",
+  "keywords": [
+    "javascript",
+    "animated",
+    "typing effect",
+    "typewriter effect",
+    "type effect",
+    "text effects",
+    "react"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "test": "vitest run src",
+    "dev": "vite serve ./examples",
+    "prettier": "prettier --write \"**/*.{md,js}\"",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
+  }
+}

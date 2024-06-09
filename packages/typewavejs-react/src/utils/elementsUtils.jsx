@@ -269,7 +269,7 @@ export function insertContent(elements, content, index = 0, shouldInsert = shoul
     if (index < 0)
         index = contentLength + index;
     else if (index == null)
-        index = contentLength;
+        index = totalLength;
 
     let currentIndex = 0;
 
@@ -383,8 +383,7 @@ export function removeContent(elements, startIndex, endIndex = null, removeEmpty
         return child;
     });
 
-    const result = _removeContent(elements);
-    return result.length !== 0 ? result.length === 1 ? result[0] : result : null;
+    return _removeContent(elements);
 }
 
 // review

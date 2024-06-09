@@ -5,6 +5,14 @@ const animation = [
     {
         type: 'type',
         value: 'Hello, World!'
+    },
+    {
+        type: 'delete',
+        value: 13
+    },
+    {
+        type: 'loop',
+        value: 0
     }
 ];
 
