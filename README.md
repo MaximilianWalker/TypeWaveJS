@@ -34,8 +34,8 @@ TypeWave JS is a versatile collection of standalone libraries, each uniquely des
 
 This monorepo includes a series of independent packages, each designed for specific technologies:
 
-- **@typewavejs/vanilla (Coming Soon)**: A specialized version of TypeWave JS designed for vanilla JavaScript applications, with no dependencies on other frameworks or libraries.
-- **[@typewavejs/react](https://npmjs.com/package/typewavejs-react)**: A fully independent implementation of TypeWave JS for React applications.
+- **[@typewavejs/vanilla](/packages/vanilla) (Coming Soon)**: A specialized version of TypeWave JS designed for vanilla JavaScript applications, with no dependencies on other frameworks or libraries.
+- **[@typewavejs/react](/packages/react)**: A fully independent implementation of TypeWave JS for React applications.
 
 ## Author
 **[Diogo Marques Crava](https://diogocrava.dev)**
