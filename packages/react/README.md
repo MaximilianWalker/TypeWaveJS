@@ -38,7 +38,7 @@ The `TypeWave JS` library is a versatile and advanced tool designed for creating
 To integrate the `TypeWave JS` library into your project, install it as follows:
 
 ```bash
-npm install typewavejs-react
+npm install @typewavejs/react
 ```
 
 ## How To Use
