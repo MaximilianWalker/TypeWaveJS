@@ -4,7 +4,8 @@ import React, {
 	useRef,
 	useMemo,
 	useImperativeHandle,
-	forwardRef
+	forwardRef,
+	memo
 } from 'react';
 import PropTypes from 'prop-types';
 // import usePrevious from './hooks/usePrevious';
@@ -238,4 +239,4 @@ TypeWave.propTypes = {
 	onEvent: PropTypes.func
 };
 
-export default TypeWave;
+export default memo(TypeWave);

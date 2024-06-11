@@ -1,5 +1,5 @@
 {
-  "name": "typewavejs",
+  "name": "@typewavejs/vanilla",
   "version": "0.0.1",
   "description": "",
   "author": "Diogo Marques Crava",
@@ -13,8 +13,7 @@
     "typing effect",
     "typewriter effect",
     "type effect",
-    "text effects",
-    "react"
+    "text effects"
   ],
   "scripts": {
     "build": "vite build",
