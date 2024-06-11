@@ -12,8 +12,7 @@
 </h2>
 
 <p align="center">
-  <img alt="NPM Version" src="https://img.shields.io/npm/v/typewavejs-react?style=for-the-badge">
-  <img alt="NPM Downloads" src="https://img.shields.io/npm/dm/typewavejs-react?style=for-the-badge">
+  <img alt="NPM Downloads by package author" src="https://img.shields.io/npm-stat/dm/%40typewavejs?style=for-the-badge">
   <img alt="NPM License" src="https://img.shields.io/npm/l/typewavejs-react?style=for-the-badge">
 </p>
 

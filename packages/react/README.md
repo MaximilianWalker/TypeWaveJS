@@ -14,15 +14,16 @@
 </h2>
 
 <p align="center">
-  <img alt="NPM Version" src="https://img.shields.io/npm/v/typewavejs-react?style=for-the-badge">
-  <img alt="NPM Downloads" src="https://img.shields.io/npm/dm/typewavejs-react?style=for-the-badge">
-  <img alt="NPM License" src="https://img.shields.io/npm/l/typewavejs-react?style=for-the-badge">
+  <img alt="NPM Version" src="https://img.shields.io/npm/v/%40typewavejs%2Freact?style=for-the-badge">
+  <img alt="NPM Downloads" src="https://img.shields.io/npm/dm/%40typewavejs%2Freact?style=for-the-badge">
+  <img alt="NPM License" src="https://img.shields.io/npm/l/%40typewavejs%2Freact?style=for-the-badge">
 </p>
 
 ## Introduction
 
-The `TypeWave JS` library is a versatile and advanced tool designed for creating interactive typing animations within React applications. With its support for a broad spectrum of animation events, `TypeWave JS` enables developers to craft everything from simple typing effects to complex animated sequences. This includes controlling typing speed, cursor movements, text deletions, pauses within sequences, continuous loops, and dynamic configuration changes during an animation. Additionally, its ability to handle React elements instead of just strings allows for rich, dynamic content integration, making it an ideal choice for any animation scenario in modern web applications.
+**Deprecated: This package is no longer maintained. We have moved to a new package: [**@typewavejs/react**](https://npmjs.com/package/@typewavejs/react). Please update your projects to use the new package for future updates and improvements.**
 
+The `TypeWave JS` library is a versatile and advanced tool designed for creating interactive typing animations within React applications. With its support for a broad spectrum of animation events, `TypeWave JS` enables developers to craft everything from simple typing effects to complex animated sequences. This includes controlling typing speed, cursor movements, text deletions, pauses within sequences, continuous loops, and dynamic configuration changes during an animation. Additionally, its ability to handle React elements instead of just strings allows for rich, dynamic content integration, making it an ideal choice for any animation scenario in modern web applications. 
 
 ## Features
 
