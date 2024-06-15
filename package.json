@@ -1,5 +1,5 @@
 {
-  "name": "typewavejs-monorepo",
+  "name": "@typewavejs/monorepo",
   "private": true,
   "scripts": {
     "build": "npm run build --workspaces",
