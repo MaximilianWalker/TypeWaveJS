@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TypeWave } from '@typewave/react';
+import { TypeWave } from '@typewavejs/react';
 import './Example.css';
 
 const events = [
@@ -10,6 +10,10 @@ const events = [
     {
         type: "pause",
         value: 1000
+    },
+    {
+        type: "delete",
+        value: 6
     },
     {
         type: "type",
@@ -50,15 +54,18 @@ const events = [
 
 ];
 
-
 function Example() {
-    const [events, setEvents] = useState(animation);
-
     return (
         <div>
             <h1>Typewave.js React Example</h1>
             <h1>Basic</h1>
-            <TypeWave events={events} cursorCharacter="_" />
+            <TypeWave
+                className="hi"
+                // typeSpeed={50}
+                // deleteSpeed={50}
+                cursorCharacter="_"
+                events={events}
+            />
         </div>
     );
 }

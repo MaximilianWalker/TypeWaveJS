@@ -1,7 +1,8 @@
 import {
     addIdsToElements,
     getAnimationList,
-    countCharacters
+    generateLineBreaks,
+    elementsToJson
 } from './elementsUtils';
 
 export const EVENT_TYPES = [
@@ -14,9 +15,10 @@ export const EVENT_TYPES = [
 ];
 
 export function processEvent(event) {
+    console.log(event);
     const { type, value, instant } = event;
     if (type === 'type') {
-        const newElements = addIdsToElements(value);
+        let newElements = generateLineBreaks(addIdsToElements(value));
         const animationList = getAnimationList(newElements);
         event = {
             ...event,
@@ -40,6 +42,7 @@ export function processEvent(event) {
 }
 
 export function processEvents(events) {
+    console.log(events.map(processEvent));
     return events.map(processEvent);
 }
 
