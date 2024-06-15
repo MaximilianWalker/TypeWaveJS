@@ -220,6 +220,13 @@ const TypeWave = forwardRef(({
 		return () => cancelAnimation();
 	}, [play, currentEvent]);
 
+	console.log('\n');
+	console.log('\n');
+	console.log('---------------------------------');
+	console.log('cursorIndex', cursorIndex);
+	console.log('---------------------------------');
+	console.log('\n');
+	console.log('\n');
 	return (
 		<Component ref={ref} {...props}>
 			{processedElements}

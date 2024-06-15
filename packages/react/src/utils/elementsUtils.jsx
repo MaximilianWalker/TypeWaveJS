@@ -268,7 +268,7 @@ const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, 
     //     console.log(countCharacters(elements[currentElementIndex + 1]))
     //     console.log(elements[currentElementIndex + 1])
     // }
-    if(content?.props?.id === 'cursor'){
+    if(content?.props?.id === 'cursor' && textIndex === currentTextIndex){
         console.log('currentElement', currentElement);
         console.log('currentElementIndex', currentElementIndex);
         console.log('textIndex', textIndex);
@@ -364,7 +364,7 @@ export function addElements(elements, content, textIndex, shouldInsert) {
         return [content];
 
     const totalLength = countCharacters(elements);
-    const contentLength = countCharacters(content);
+    let contentLength = countCharacters(content);
 
     if (textIndex < 0)
         textIndex = contentLength + textIndex;
@@ -372,6 +372,10 @@ export function addElements(elements, content, textIndex, shouldInsert) {
         textIndex = totalLength;
 
     let currentTextIndex = 0;
+
+    if(content?.props?.id === 'cursor'){
+        contentLength = 0;
+    }
 
     const _addElements = (elements, parent = null, depth = 0) => {
         const newElements = [];
