@@ -260,13 +260,23 @@ const shouldInsertRightMost = ({ currentElement, textIndex, currentTextIndex, to
     ((textIndex === totalLength && currentTextIndex + currentElement.length === totalLength) || textIndex < currentTextIndex + currentElement.length)
 );
 
-const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength }) => {
-    if (textIndex === currentTextIndex &&
-        currentElementIndex !== elements.length - 1 &&
-        isValidElement(elements[currentElementIndex + 1]) &&
-        position === 'after') {
-        console.log(countCharacters(elements[currentElementIndex + 1]))
-        console.log(elements[currentElementIndex + 1])
+const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength, content }) => {
+    // if (textIndex === currentTextIndex &&
+    //     currentElementIndex !== elements.length - 1 &&
+    //     isValidElement(elements[currentElementIndex + 1]) &&
+    //     position === 'after') {
+    //     console.log(countCharacters(elements[currentElementIndex + 1]))
+    //     console.log(elements[currentElementIndex + 1])
+    // }
+    if(content?.props?.id === 'cursor'){
+        console.log('currentElement', currentElement);
+        console.log('currentElementIndex', currentElementIndex);
+        console.log('textIndex', textIndex);
+        console.log('currentTextIndex', currentTextIndex);
+        console.log('depth', depth);
+        console.log('position', position);
+        console.log('contentLength', contentLength);
+        console.log('content', content);
     }
     return (
         (
@@ -314,15 +324,6 @@ const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, 
                 )
             )
         )
-        // &&
-        // (
-        //     textIndex !== currentTextIndex ||
-        //     currentElementIndex === elements.length - 1 ||
-        //     !isValidElement(elements[currentElementIndex + 1]) ||
-        //     position !== 'after' ||
-        //     countCharacters(elements[currentElementIndex + 1]) > 0
-        //     // elements[currentElementIndex + 1].type !== 'br'
-        // )
     );
 }
 
@@ -385,6 +386,7 @@ export function addElements(elements, content, textIndex, shouldInsert) {
                 currentTextIndex,
                 depth,
                 totalLength,
+                content,
                 contentLength,
                 position
             });

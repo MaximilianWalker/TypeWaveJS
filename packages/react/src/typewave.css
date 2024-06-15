@@ -1,4 +1,5 @@
 .typewriter__cursor {
+    display: inline-block;
     width: 0;
     animation: 1s blink step-end infinite;
 }
