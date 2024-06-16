@@ -47,7 +47,7 @@ const events = [
                 <b style={{ color: "#4EC9B0" }}>
                     Diogo Crava
                 </b>
-                {" !"}
+                {"!"}
             </>
         )
     },

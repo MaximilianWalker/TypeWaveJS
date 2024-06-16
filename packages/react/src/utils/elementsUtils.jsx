@@ -260,7 +260,7 @@ const shouldInsertRightMost = ({ currentElement, textIndex, currentTextIndex, to
     ((textIndex === totalLength && currentTextIndex + currentElement.length === totalLength) || textIndex < currentTextIndex + currentElement.length)
 );
 
-const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength, content }) => {
+const shouldInsertOuterMost2 = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength, content }) => {
     // if (textIndex === currentTextIndex &&
     //     currentElementIndex !== elements.length - 1 &&
     //     isValidElement(elements[currentElementIndex + 1]) &&
@@ -268,7 +268,7 @@ const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, 
     //     console.log(countCharacters(elements[currentElementIndex + 1]))
     //     console.log(elements[currentElementIndex + 1])
     // }
-    if(content?.props?.id === 'cursor' && textIndex === currentTextIndex){
+    if (content?.props?.id === 'cursor' && textIndex === currentTextIndex) {
         console.log('currentElement', currentElement);
         console.log('currentElementIndex', currentElementIndex);
         console.log('textIndex', textIndex);
@@ -327,6 +327,143 @@ const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, 
     );
 }
 
+const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength, content }) => {
+    // if (textIndex === currentTextIndex &&
+    //     currentElementIndex !== elements.length - 1 &&
+    //     isValidElement(elements[currentElementIndex + 1]) &&
+    //     position === 'after') {
+    //     console.log(countCharacters(elements[currentElementIndex + 1]))
+    //     console.log(elements[currentElementIndex + 1])
+    // }
+
+    // if(content?.props?.id === 'cursor' && textIndex === currentTextIndex){
+    //     console.log('currentElement', currentElement);
+    //     console.log('currentElementIndex', currentElementIndex);
+    //     console.log('textIndex', textIndex);
+    //     console.log('currentTextIndex', currentTextIndex);
+    //     console.log('depth', depth);
+    //     console.log('position', position);
+    //     console.log('contentLength', contentLength);
+    //     console.log('content', content);
+    // }
+
+    // if (content?.props?.id === 'cursor' && (
+    //     isValidElement(currentElement) &&
+    //     textIndex === currentTextIndex &&
+    //     (
+    //         position === 'before' &&
+    //         contentLength > 0 &&
+    //         (
+    //             currentElementIndex === 0 ||
+    //             typeof elements[currentElementIndex - 1] !== 'string'
+    //         )
+    //     )
+    //     ||
+    //     (
+    //         position === 'after' &&
+    //         (
+    //             (
+    //                 currentElementIndex === elements.length - 1 &&
+    //                 depth === 0
+    //             )
+    //             ||
+    //             (
+    //                 currentElementIndex !== elements.length - 1 &&
+    //                 countCharacters(elements[currentElementIndex + 1]) > 0 &&
+    //                 typeof elements[currentElementIndex + 1] !== 'string'
+    //             )
+    //         )
+    //     )
+    // )) {
+    //     console.log('currentElement', currentElement);
+    //     console.log('currentElementIndex', currentElementIndex);
+    //     console.log('textIndex', textIndex);
+    //     console.log('currentTextIndex', currentTextIndex);
+    //     console.log('depth', depth);
+    //     console.log('position', position);
+    //     console.log('contentLength', contentLength);
+    //     console.log('content', content);
+    // }
+    if (content?.props?.id === 'cursor' && (
+        typeof currentElement === 'string' &&
+        textIndex >= currentTextIndex &&
+        (
+            textIndex < currentTextIndex + currentElement.length ||
+            (
+                textIndex === currentTextIndex + currentElement.length &&
+                (
+                    currentElementIndex === elements.length - 1 &&
+                    depth === 0
+                )
+                ||
+                (
+                    currentElementIndex !== elements.length - 1 &&
+                    countCharacters(elements[currentElementIndex + 1]) > 0
+                )
+            )
+        )
+    )) {
+        console.log('currentTextIndex', currentTextIndex);
+        console.log('textIndex', textIndex);
+        console.log('currentElement length', currentElement.length);
+    }
+
+    return (
+        (
+            (
+                typeof currentElement === 'string' &&
+                textIndex >= currentTextIndex &&
+                (
+                    textIndex < currentTextIndex + currentElement.length ||
+                    (
+                        textIndex === currentTextIndex + currentElement.length &&
+                        (
+                            (
+                                currentElementIndex === elements.length - 1 &&
+                                depth === 0
+                            )
+                            ||
+                            (
+                                currentElementIndex !== elements.length - 1 &&
+                                countCharacters(elements[currentElementIndex + 1]) > 0
+                            )
+                        )
+                    )
+                )
+            )
+            // ||
+            // (
+            //     isValidElement(currentElement) &&
+            //     textIndex === currentTextIndex &&
+            //     (
+            //         position === 'before' &&
+            //         contentLength > 0 &&
+            //         (
+            //             currentElementIndex === 0 ||
+            //             typeof elements[currentElementIndex - 1] !== 'string'
+            //         )
+            //     )
+            //     ||
+            //     (
+            //         position === 'after' &&
+            //         (
+            //             (
+            //                 currentElementIndex === elements.length - 1 &&
+            //                 depth === 0
+            //             )
+            //             ||
+            //             (
+            //                 currentElementIndex !== elements.length - 1 &&
+            //                 countCharacters(elements[currentElementIndex + 1]) > 0 &&
+            //                 typeof elements[currentElementIndex + 1] !== 'string'
+            //             )
+            //         )
+            //     )
+            // )
+        )
+    );
+}
+
 const shouldInsertById = ({ currentElement, parent, id, textIndex, currentTextIndex }) => (
     (
         id == null || (parent != null && parent.props.id === id)
@@ -373,7 +510,7 @@ export function addElements(elements, content, textIndex, shouldInsert) {
 
     let currentTextIndex = 0;
 
-    if(content?.props?.id === 'cursor'){
+    if (content?.props?.id === 'cursor') {
         contentLength = 0;
     }
 

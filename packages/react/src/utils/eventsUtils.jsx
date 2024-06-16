@@ -15,7 +15,6 @@ export const EVENT_TYPES = [
 ];
 
 export function processEvent(event) {
-    console.log(event);
     const { type, value, instant } = event;
     if (type === 'type') {
         let newElements = generateLineBreaks(addIdsToElements(value));
@@ -42,7 +41,6 @@ export function processEvent(event) {
 }
 
 export function processEvents(events) {
-    console.log(events.map(processEvent));
     return events.map(processEvent);
 }
 
