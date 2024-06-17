@@ -2,7 +2,8 @@ import {
     addIdsToElements,
     getAnimationList,
     generateLineBreaks,
-    elementsToJson
+    elementsToJson,
+    convertFragmentsToArrays
 } from './elementsUtils';
 
 export const EVENT_TYPES = [
@@ -17,15 +18,18 @@ export const EVENT_TYPES = [
 export function processEvent(event) {
     const { type, value, instant } = event;
     if (type === 'type') {
-        let newElements = generateLineBreaks(addIdsToElements(value));
-        const animationList = getAnimationList(newElements);
+        let newElements = addIdsToElements(value);
+        newElements = generateLineBreaks(newElements);
+        // newElements = convertFragmentsToArrays(newElements);
+
+        const animationElements = getAnimationList(newElements);
         event = {
             ...event,
             value: newElements,
             animation: !instant ? {
-                elements: animationList,
+                elements: animationElements,
                 index: 0,
-                size: animationList.length
+                size: animationElements.length
             } : null,
         };
     } else if (['delete', 'move'].includes(event.type)) {

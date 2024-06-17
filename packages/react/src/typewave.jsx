@@ -91,10 +91,13 @@ const TypeWave = forwardRef(({
 
 		if (index < elements.length) {
 			const { element, parentId } = elements[index];
+			
 			if (parentId)
 				return addElementsById(prevElements, parentId, element, cursorIndex !== 0 ? cursorIndex : null);
 			else
-				return addElementsByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'rightMost');
+				return addElementsByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
+
+			// return addElementsByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
 		}
 		return prevElements;
 	});
@@ -182,8 +185,10 @@ const TypeWave = forwardRef(({
 
 			const { index, size } = animation;
 
-			if (index >= size - 1)
+			if (index >= size - 1) {
 				setEventIndex(prevIndex => prevIndex + 1);
+				console.log('event')
+			}
 
 			setEvents(prevEvents => prevEvents.map((event, i) => {
 				if (i === eventIndex) {
@@ -209,6 +214,7 @@ const TypeWave = forwardRef(({
 
 	useEffect(() => {
 		setEvents(processEvents(eventsProp));
+		console.log(processEvents(eventsProp))
 	}, [eventsProp]);
 
 	useEffect(() => {

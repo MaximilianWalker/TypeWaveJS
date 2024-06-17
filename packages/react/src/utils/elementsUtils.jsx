@@ -56,6 +56,16 @@ export function addIdsToElements(elements) {
     return Array.isArray(elements) ? Children.map(elements, _addIdsToElements) : _addIdsToElements(elements);
 }
 
+export function convertFragmentsToArrays(elements) {
+    const _convertFragmentsToArrays = (elements) => Children.map(elements, (element) => {
+        if (isValidElement(element) && element.type === Fragment)
+            return _convertFragmentsToArrays(element.props.children);
+        return element;
+    });
+
+    return _convertFragmentsToArrays(elements);
+}
+
 // modify to add child index too, normal index will be renamed to iteration index
 export function* iterateElements(elements, method = 'depth') {
     if (method !== 'depth' && method !== 'breadth')
@@ -154,6 +164,8 @@ export function* iterateAnimation(elements) {
             index++;
 
             for (let i = 1; i < entry.element.length; i++) {
+                console.log('entry')
+                console.log(entry)
                 yield {
                     index,
                     element: entry.element[i],
@@ -270,13 +282,25 @@ const shouldInsertOuterMost2 = ({ elements, currentElement, currentElementIndex,
     // }
     if (content?.props?.id === 'cursor' && textIndex === currentTextIndex) {
         console.log('currentElement', currentElement);
-        console.log('currentElementIndex', currentElementIndex);
-        console.log('textIndex', textIndex);
-        console.log('currentTextIndex', currentTextIndex);
-        console.log('depth', depth);
-        console.log('position', position);
-        console.log('contentLength', contentLength);
-        console.log('content', content);
+        console.log((
+            typeof currentElement === 'string' &&
+            textIndex >= currentTextIndex &&
+            (
+                textIndex < currentTextIndex + currentElement.length ||
+                (
+                    textIndex === currentTextIndex + currentElement.length &&
+                    (
+                        currentElementIndex === elements.length - 1 &&
+                        depth === 0
+                    )
+                    ||
+                    (
+                        currentElementIndex !== elements.length - 1 &&
+                        countCharacters(elements[currentElementIndex + 1]) > 0
+                    )
+                )
+            )
+        ))
     }
     return (
         (
@@ -328,27 +352,20 @@ const shouldInsertOuterMost2 = ({ elements, currentElement, currentElementIndex,
 }
 
 const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength, content }) => {
-
-    console.log(typeof currentElement === 'string' &&
-        textIndex >= currentTextIndex &&
-        (
-            textIndex < currentTextIndex + currentElement.length ||
-            (
-                textIndex === currentTextIndex + currentElement.length &&
-                (
-                    (
-                        currentElementIndex === elements.length - 1 &&
-                        depth === 0
-                    )
-                    ||
-                    (
-                        currentElementIndex !== elements.length - 1 &&
-                        countCharacters(elements[currentElementIndex + 1]) > 0
-                    )
-                )
-            )
-        )
-    )
+    if (!content.props?.id || content.props.id !== 'cursor')
+        console.log('content', content);
+    if (isValidElement(content) && content.props.id !== 'cursor' && isValidElement(content)) {
+        console.log('-------------------')
+        console.log('currentElement', currentElement);
+        console.log('currentElementIndex', currentElementIndex);
+        console.log('textIndex', textIndex);
+        console.log('currentTextIndex', currentTextIndex);
+        console.log('depth', depth);
+        console.log('position', position);
+        console.log('contentLength', contentLength);
+        console.log('content', content);
+        console.log('-------------------')
+    }
 
     return (
         (
@@ -373,35 +390,44 @@ const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, 
                     )
                 )
             )
-            // ||
-            // (
-            //     isValidElement(currentElement) &&
-            //     textIndex === currentTextIndex &&
-            //     (
-            //         position === 'before' &&
-            //         contentLength > 0 &&
-            //         (
-            //             currentElementIndex === 0 ||
-            //             typeof elements[currentElementIndex - 1] !== 'string'
-            //         )
-            //     )
-            //     ||
-            //     (
-            //         position === 'after' &&
-            //         (
-            //             (
-            //                 currentElementIndex === elements.length - 1 &&
-            //                 depth === 0
-            //             )
-            //             ||
-            //             (
-            //                 currentElementIndex !== elements.length - 1 &&
-            //                 countCharacters(elements[currentElementIndex + 1]) > 0 &&
-            //                 typeof elements[currentElementIndex + 1] !== 'string'
-            //             )
-            //         )
-            //     )
-            // )
+            ||
+            (
+                isValidElement(currentElement) &&
+                textIndex === currentTextIndex &&
+                (
+                    (
+                        position === 'before' &&
+                        contentLength > 0 &&
+                        (
+                            (
+                                currentElementIndex === 0 &&
+                                depth === 0
+                            )
+                            ||
+                            (
+                                currentElementIndex !== 0 &&
+                                typeof elements[currentElementIndex - 1] !== 'string'
+                            )
+                        )
+                    )
+                    ||
+                    (
+                        position === 'after' &&
+                        (
+                            (
+                                currentElementIndex === elements.length - 1 &&
+                                depth === 0
+                            )
+                            ||
+                            (
+                                currentElementIndex !== elements.length - 1 &&
+                                countCharacters(elements[currentElementIndex + 1]) > 0 &&
+                                typeof elements[currentElementIndex + 1] !== 'string'
+                            )
+                        )
+                    )
+                )
+            )
         )
     );
 }
@@ -541,10 +567,11 @@ export function removeElements(elements, startIndex, endIndex = null, removeEmpt
 
     const _removeElements = (elements) => Children.map(elements, (child) => {
         if (typeof child === 'string') {
-            if (_currentIndex + child.length <= startIndex) {
-                _currentIndex += child.length;
-                return child;
-            } else if (!endIndex || _currentIndex >= endIndex) {
+            if (
+                _currentIndex + child.length <= startIndex ||
+                !endIndex ||
+                _currentIndex >= endIndex
+            ) {
                 _currentIndex += child.length;
                 return child;
             } else {
