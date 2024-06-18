@@ -91,7 +91,6 @@ const TypeWave = forwardRef(({
 
 		if (index < elements.length) {
 			const { element, parentId } = elements[index];
-			
 			if (parentId)
 				return addElementsById(prevElements, parentId, element, cursorIndex !== 0 ? cursorIndex : null);
 			else
@@ -185,10 +184,8 @@ const TypeWave = forwardRef(({
 
 			const { index, size } = animation;
 
-			if (index >= size - 1) {
+			if (index >= size - 1)
 				setEventIndex(prevIndex => prevIndex + 1);
-				console.log('event')
-			}
 
 			setEvents(prevEvents => prevEvents.map((event, i) => {
 				if (i === eventIndex) {
@@ -226,11 +223,6 @@ const TypeWave = forwardRef(({
 		return () => cancelAnimation();
 	}, [play, currentEvent]);
 
-	// console.log('\n');
-	// console.log('\n');
-	// console.log('---------------------------------');
-	// console.log('cursorIndex', cursorIndex);
-	console.log('---------------------------------');
 	return (
 		<Component ref={ref} {...props}>
 			{processedElements}

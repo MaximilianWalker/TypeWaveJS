@@ -61,8 +61,8 @@ function Example() {
             <h1>Basic</h1>
             <TypeWave
                 className="hi"
-                // typeSpeed={50}
-                // deleteSpeed={50}
+                typeSpeed={50}
+                deleteSpeed={50}
                 cursorCharacter="_"
                 events={events}
             />

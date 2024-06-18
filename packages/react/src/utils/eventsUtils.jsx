@@ -3,7 +3,8 @@ import {
     getAnimationList,
     generateLineBreaks,
     elementsToJson,
-    convertFragmentsToArrays
+    convertFragmentsToArrays,
+    getElementsList
 } from './elementsUtils';
 
 export const EVENT_TYPES = [
@@ -18,9 +19,9 @@ export const EVENT_TYPES = [
 export function processEvent(event) {
     const { type, value, instant } = event;
     if (type === 'type') {
-        let newElements = addIdsToElements(value);
-        newElements = generateLineBreaks(newElements);
-        // newElements = convertFragmentsToArrays(newElements);
+        let newElements = generateLineBreaks(value);
+        newElements = convertFragmentsToArrays(newElements);
+        newElements = addIdsToElements(newElements);
 
         const animationElements = getAnimationList(newElements);
         event = {

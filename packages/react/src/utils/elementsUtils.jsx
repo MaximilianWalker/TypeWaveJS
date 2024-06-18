@@ -164,8 +164,6 @@ export function* iterateAnimation(elements) {
             index++;
 
             for (let i = 1; i < entry.element.length; i++) {
-                console.log('entry')
-                console.log(entry)
                 yield {
                     index,
                     element: entry.element[i],
@@ -183,6 +181,8 @@ export function* iterateAnimation(elements) {
                 element: newElement,
                 parentId: entry.parent?.props.id
             };
+            
+            entries = [];
             index++;
         } else if (isValidElement(entry.element)) {
             entries.unshift(entry);
@@ -272,101 +272,7 @@ const shouldInsertRightMost = ({ currentElement, textIndex, currentTextIndex, to
     ((textIndex === totalLength && currentTextIndex + currentElement.length === totalLength) || textIndex < currentTextIndex + currentElement.length)
 );
 
-const shouldInsertOuterMost2 = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength, content }) => {
-    // if (textIndex === currentTextIndex &&
-    //     currentElementIndex !== elements.length - 1 &&
-    //     isValidElement(elements[currentElementIndex + 1]) &&
-    //     position === 'after') {
-    //     console.log(countCharacters(elements[currentElementIndex + 1]))
-    //     console.log(elements[currentElementIndex + 1])
-    // }
-    if (content?.props?.id === 'cursor' && textIndex === currentTextIndex) {
-        console.log('currentElement', currentElement);
-        console.log((
-            typeof currentElement === 'string' &&
-            textIndex >= currentTextIndex &&
-            (
-                textIndex < currentTextIndex + currentElement.length ||
-                (
-                    textIndex === currentTextIndex + currentElement.length &&
-                    (
-                        currentElementIndex === elements.length - 1 &&
-                        depth === 0
-                    )
-                    ||
-                    (
-                        currentElementIndex !== elements.length - 1 &&
-                        countCharacters(elements[currentElementIndex + 1]) > 0
-                    )
-                )
-            )
-        ))
-    }
-    return (
-        (
-            (
-                typeof currentElement === 'string' &&
-                textIndex >= currentTextIndex &&
-                (
-                    textIndex < currentTextIndex + currentElement.length ||
-                    (
-                        textIndex === currentTextIndex + currentElement.length &&
-                        (
-                            currentElementIndex === elements.length - 1 &&
-                            depth === 0
-                        )
-                        ||
-                        (
-                            currentElementIndex !== elements.length - 1 &&
-                            countCharacters(elements[currentElementIndex + 1]) > 0
-                        )
-                    )
-                )
-            )
-            ||
-            (
-                isValidElement(currentElement) &&
-                textIndex === currentTextIndex &&
-                (
-                    position === 'before' &&
-                    contentLength > 0
-                )
-                ||
-                (
-                    position === 'after' &&
-                    (
-                        (
-                            currentElementIndex === elements.length - 1 &&
-                            depth === 0
-                        )
-                        ||
-                        (
-                            currentElementIndex !== elements.length - 1 &&
-                            countCharacters(elements[currentElementIndex + 1]) > 0
-                        )
-                    )
-                )
-            )
-        )
-    );
-}
-
 const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength, content }) => {
-    if (!content.props?.id || content.props.id !== 'cursor')
-        console.log('content', content);
-    if (isValidElement(content) && content.props.id !== 'cursor' && isValidElement(content)) {
-        console.log('-------------------')
-        console.log('currentElement', currentElement);
-        console.log('currentElementIndex', currentElementIndex);
-        console.log('textIndex', textIndex);
-        console.log('currentTextIndex', currentTextIndex);
-        console.log('depth', depth);
-        console.log('position', position);
-        console.log('contentLength', contentLength);
-        console.log('content', content);
-        console.log('-------------------')
-    }
-
     return (
         (
             (
@@ -519,18 +425,22 @@ export function addElements(elements, content, textIndex, shouldInsert) {
                 }
 
                 currentTextIndex += currentElement.length;
-            } else if (isValidElement(currentElement) && currentElement.props.children) {
+            } else if (isValidElement(currentElement)) {
                 if (_shouldInsert("before")) {
                     newElements.push(content);
                     currentTextIndex += contentLength;
                 }
 
-                const id = currentElement.props.id ?? uuidv4();
-                newElements.push(cloneElement(
-                    currentElement,
-                    { id, key: id },
-                    _addElements(currentElement.props.children, currentElement, depth + 1)
-                ));
+                if (currentElement.props.children) {
+                    const id = currentElement.props.id ?? uuidv4();
+                    newElements.push(cloneElement(
+                        currentElement,
+                        { id, key: id },
+                        _addElements(currentElement.props.children, currentElement, depth + 1)
+                    ));
+                } else {
+                    newElements.push(currentElement);
+                }
 
                 if (_shouldInsert("after")) {
                     newElements.push(content);
