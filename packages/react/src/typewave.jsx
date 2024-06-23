@@ -17,9 +17,9 @@ import {
 } from './utils/eventsUtils';
 import {
 	countCharacters,
-	insertContentById,
-	insertContentByPreference,
-	removeContent,
+	addElementsById,
+	addElementsByPreference,
+	removeElements,
 	// removeElement,
 } from './utils/elementsUtils';
 import './typewave.css';
@@ -56,7 +56,7 @@ const TypeWave = forwardRef(({
 	const elementsSize = useMemo(() => countCharacters(elements), [elements]);
 	const processedElements = useMemo(() => (
 		showCursor ?
-			insertContentByPreference(
+			addElementsByPreference(
 				elements,
 				cursor,
 				cursorIndex !== 0 ? cursorIndex : null,
@@ -67,7 +67,7 @@ const TypeWave = forwardRef(({
 	), [elements, cursorIndex, showCursor, cursorCharacter]);
 
 	// EVENTS
-	const [events, setEvents] = useState(processEvents(eventsProp) ?? []);
+	const [events, setEvents] = useState([]);
 	const [eventIndex, setEventIndex] = useState(0);
 	const currentEvent = useMemo(() => (events[eventIndex] ? { ...events[eventIndex] } : null), [events, eventIndex]);
 
@@ -85,14 +85,20 @@ const TypeWave = forwardRef(({
 	const onType = () => setElements((prevElements) => {
 		const { value, instant, animation } = currentEvent;
 		if (instant)
-			return insertContentByPreference(prevElements, value, cursorIndex, 'outerMost');
+			return addElementsByPreference(prevElements, value, cursorIndex, 'outerMost');
 
 		const { index, elements } = animation;
-		const { element, parentId } = elements[index];
-		if (parentId)
-			return insertContentById(prevElements, parentId, element, cursorIndex !== 0 ? cursorIndex : null);
-		else
-			return insertContentByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
+
+		if (index < elements.length) {
+			const { element, parentId } = elements[index];
+			if (parentId)
+				return addElementsById(prevElements, parentId, element, cursorIndex !== 0 ? cursorIndex : null);
+			else
+				return addElementsByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
+
+			// return addElementsByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
+		}
+		return prevElements;
 	});
 
 	const onMove = () => setCursorIndex((prevIndex) => {
@@ -104,7 +110,7 @@ const TypeWave = forwardRef(({
 		return newIndex;
 	});
 
-	const onDelete = () => setElements((prevElements) => removeContent(
+	const onDelete = () => setElements((prevElements) => removeElements(
 		prevElements,
 		elementsSize + cursorIndex - 1,
 		elementsSize + cursorIndex
@@ -202,6 +208,11 @@ const TypeWave = forwardRef(({
 			intervalRef.current = null;
 		}
 	};
+
+	useEffect(() => {
+		setEvents(processEvents(eventsProp));
+		console.log(processEvents(eventsProp))
+	}, [eventsProp]);
 
 	useEffect(() => {
 		if (play && !intervalRef.current && currentEvent)

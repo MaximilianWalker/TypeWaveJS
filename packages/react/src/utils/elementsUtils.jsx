@@ -6,26 +6,36 @@ import { v4 as uuidv4 } from 'uuid';
  * @param {React.ReactElement} element - The React element to transform.
  * @returns {object} The JSON representation of the React element.
  */
-export function elementToJson(element) {
-    if (typeof element !== 'object' || element === null) {
-        return element;
-    }
+export function elementsToJson(elements) {
+    const _elementsToJson = (elements) => Children.map(elements, (element) => {
+        if (
+            typeof element === 'string' ||
+            typeof element === 'number' ||
+            typeof element === 'boolean' ||
+            element == null
+        )
+            return element;
 
-    const type = element.type;
-    const props = element.props;
+        if (!isValidElement(element))
+            throw new Error('Element is not a valid React element');
 
-    const elementType = typeof type === 'function'
-        ? type.name || 'Anonymous'
-        : type;
+        const type = element.type;
+        const props = element.props;
 
-    const children = Children
-        .map(props.children, child => elementToJson(child))
-        .filter(child => child !== undefined);
+        const elementType = typeof type === 'function'
+            ? type.name || 'Anonymous'
+            : type;
 
-    return {
-        type: elementType,
-        props: { ...props, children: children.length === 0 ? undefined : children },
-    };
+        return {
+            type: elementType,
+            props: {
+                ...props,
+                children: _elementsToJson(props.children)
+            }
+        };
+    });
+
+    return _elementsToJson(elements);
 }
 
 export function addIdsToElements(elements) {
@@ -46,6 +56,17 @@ export function addIdsToElements(elements) {
     return Array.isArray(elements) ? Children.map(elements, _addIdsToElements) : _addIdsToElements(elements);
 }
 
+export function convertFragmentsToArrays(elements) {
+    const _convertFragmentsToArrays = (elements) => Children.map(elements, (element) => {
+        if (isValidElement(element) && element.type === Fragment)
+            return _convertFragmentsToArrays(element.props.children);
+        return element;
+    });
+
+    return _convertFragmentsToArrays(elements);
+}
+
+// modify to add child index too, normal index will be renamed to iteration index
 export function* iterateElements(elements, method = 'depth') {
     if (method !== 'depth' && method !== 'breadth')
         throw new Error('Method must be depth or breadth');
@@ -60,25 +81,32 @@ export function* iterateElements(elements, method = 'depth') {
         Children.map(elements, child => ({ element: child, depth: 0 }));
 
     while (toProcess.length > 0) {
-        const { element, parent, depth } = method === 'depth' ? toProcess.pop() : toProcess.shift();
+        const { element, parent, childIndex, depth } = toProcess.shift();
 
         if (!element) continue;
-        yield { element, parent, index, depth };
+        yield {
+            element,
+            parent,
+            iterationIndex: index,
+            childIndex,
+            depth
+        };
 
         index++;
 
         if (isValidElement(element) && element.props.children) {
             const entries = Children.map(
                 element.props.children,
-                child => ({
+                (child, childIndex) => ({
                     element: child,
                     parent: element,
+                    childIndex,
                     depth: depth + 1
                 })
             );
 
             if (method === 'depth')
-                toProcess.push(...entries.reverse());
+                toProcess.unshift(...entries);
             else
                 toProcess.push(...entries);
         }
@@ -91,9 +119,8 @@ export function getElementsList(elements, method = 'depth') {
 
 export function generateElements(entries) {
     const recreate = (element) => {
-        if (!isValidElement(element)) {
+        if (!isValidElement(element))
             return element;
-        }
 
         const newChildren = Children.map(element.props.children, child => recreate(child));
 
@@ -116,6 +143,7 @@ export function* iterateText(elements) {
     }
 }
 
+// adjust to consider break lines
 export function* iterateAnimation(elements) {
     let index = 0;
     let entries = [];
@@ -143,6 +171,19 @@ export function* iterateAnimation(elements) {
                 };
                 index++;
             }
+        } else if (isValidElement(entry.element) && entry.element.type === 'br') {
+            let newElement = entry.element;
+            for (const e of entries)
+                newElement = cloneElement(e.element, null, newElement);
+
+            yield {
+                index,
+                element: newElement,
+                parentId: entry.parent?.props.id
+            };
+
+            entries = [];
+            index++;
         } else if (isValidElement(entry.element)) {
             entries.unshift(entry);
         }
@@ -153,18 +194,33 @@ export function getAnimationList(elements) {
     return Array.from(iterateAnimation(elements));
 }
 
-export function generateLineBreaks(text) {
-    const parts = text.split('\n');
-    return (
-        <>
-            {parts.map((part, index) => (
-                <Fragment key={index}>
-                    {part}
-                    {index < parts.length - 1 ? <br /> : null}
-                </Fragment>
-            ))}
-        </>
-    );
+export function generateLineBreaks(elements) {
+    const _generateLineBreaks = (elements) => Children.map(elements, (element, index) => {
+        if (typeof element === 'string') {
+            const lines = element.split('\n');
+            const lastLine = lines.pop();
+            return (
+                <>
+                    {lines.map((line, index) => (
+                        <Fragment key={index}>
+                            {line ? line : null}
+                            <br />
+                        </Fragment>
+                    ))}
+                    {lastLine ? lastLine : null}
+                </>
+            );
+        } else if (isValidElement(element) && element.props.children) {
+            return cloneElement(
+                element,
+                { key: index },
+                _generateLineBreaks(element.props.children)
+            );
+        }
+        return element;
+    });
+
+    return _generateLineBreaks(elements);
 }
 
 export function countCharacters(elements) {
@@ -204,95 +260,155 @@ export function findElementAtIndex(parentNode, index) {
     return _node;
 }
 
-const shouldInsertLeftMost = ({ currentElement, index, currentIndex }) => (
+const shouldInsertLeftMost = ({ currentElement, textIndex, currentTextIndex }) => (
     typeof currentElement === 'string' &&
-    ((index === 0 && currentIndex === 0) || index > currentIndex) &&
-    index <= currentIndex + currentElement.length
+    ((textIndex === 0 && currentTextIndex === 0) || textIndex > currentTextIndex) &&
+    textIndex <= currentTextIndex + currentElement.length
 );
 
-const shouldInsertRightMost = ({ currentElement, index, currentIndex, totalLength }) => (
+const shouldInsertRightMost = ({ currentElement, textIndex, currentTextIndex, totalLength }) => (
     typeof currentElement === 'string' &&
-    index >= currentIndex &&
-    ((index === totalLength && currentIndex + currentElement.length === totalLength) || index < currentIndex + currentElement.length)
+    textIndex >= currentTextIndex &&
+    ((textIndex === totalLength && currentTextIndex + currentElement.length === totalLength) || textIndex < currentTextIndex + currentElement.length)
 );
 
-const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, index, currentIndex, depth }) => (
+const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength }) => (
     (
-        typeof currentElement === 'string' &&
-        index >= currentIndex &&
         (
-            index < currentIndex + currentElement.length ||
+            typeof currentElement === 'string' &&
+            textIndex >= currentTextIndex &&
             (
-                index === currentIndex + currentElement.length &&
+                textIndex < currentTextIndex + currentElement.length ||
                 (
-                    depth === 0 ||
+                    textIndex === currentTextIndex + currentElement.length &&
                     (
-                        Array.isArray(elements) &&
-                        elements[currentElementIndex + 1] != null
+                        (
+                            currentElementIndex === elements.length - 1 &&
+                            depth === 0
+                        )
+                        ||
+                        (
+                            currentElementIndex !== elements.length - 1 &&
+                            countCharacters(elements[currentElementIndex + 1]) > 0
+                        )
+                    )
+                )
+            )
+        )
+        ||
+        (
+            isValidElement(currentElement) &&
+            textIndex === currentTextIndex &&
+            (
+                (
+                    position === 'before' &&
+                    contentLength > 0 &&
+                    (
+                        (
+                            currentElementIndex === 0 &&
+                            depth === 0
+                        )
+                        ||
+                        (
+                            currentElementIndex !== 0 &&
+                            countCharacters(elements[currentElementIndex + 1]) > 0 &&
+                            typeof elements[currentElementIndex - 1] !== 'string'
+                        )
+                    )
+                )
+                ||
+                (
+                    position === 'after' &&
+                    (
+                        (
+                            currentElementIndex === elements.length - 1 &&
+                            depth === 0
+                        )
+                        ||
+                        (
+                            currentElementIndex !== elements.length - 1 &&
+                            countCharacters(elements[currentElementIndex + 1]) > 0 &&
+                            typeof elements[currentElementIndex + 1] !== 'string'
+                        )
                     )
                 )
             )
         )
     )
-    ||
-    (
-        isValidElement(currentElement) &&
-        index === currentIndex &&
-        (
-            depth === 0 ||
-            (
-                Array.isArray(elements) &&
-                typeof elements[currentElementIndex + 1] !== 'string'
-            )
-        )
-    )
 );
 
-const shouldInsertById = ({ currentElement, parent, id, index, currentIndex, depth }) => (
+const shouldInsertById = ({ currentElement, parent, id, textIndex, currentTextIndex }) => (
     (
         id == null || (parent != null && parent.props.id === id)
     )
     &&
     (
-        (typeof currentElement === 'string' && index >= currentIndex && index <= currentIndex + currentElement.length) ||
-        (isValidElement(currentElement) && index === currentIndex)
+        (typeof currentElement === 'string' && textIndex >= currentTextIndex && textIndex <= currentTextIndex + currentElement.length) ||
+        (isValidElement(currentElement) && textIndex === currentTextIndex)
     )
 );
 
-export function insertContent(elements, content, index = 0, shouldInsert = shouldInsertLeftMost) {
+// export function insertElementsById(baseElements, id, index, elements) {
+//     const _addElementsById = (elements) => Children.map(elements, (child, index) => {
+//         if (isValidElement(child) && child.props.children) {
+//             const newChildren = _addElementsById(child.props.children);
+//             return cloneElement(child, { key: index, children: newChildren });
+//         } else if (typeof child === 'string') {
+//             return child;
+//         } else {
+//             if (child.props.id === id) {
+//                 if (typeof content === 'string') {
+//                     return `${child.slice(0, index)}${content}${child.slice(index)}`;
+//                 } else if (isValidElement(content)) {
+//                     return content;
+//                 }
+//             }
+//             return child;
+//         }
+//     });
+//     return _addElementsById(tree);
+// }
+
+export function addElements(elements, content, textIndex, shouldInsert) {
     if (Array.isArray(elements) && elements.length === 0)
         return [content];
 
     const totalLength = countCharacters(elements);
-    const contentLength = countCharacters(content);
+    let contentLength = countCharacters(content);
 
-    if (index < 0)
-        index = contentLength + index;
-    else if (index == null)
-        index = totalLength;
+    if (textIndex < 0)
+        textIndex = contentLength + textIndex;
+    else if (textIndex == null)
+        textIndex = totalLength;
 
-    let currentIndex = 0;
+    let currentTextIndex = 0;
 
-    const _insertContent = (elements, parent = null, depth = 0) => {
+    if (content?.props?.id === 'cursor') {
+        contentLength = 0;
+    }
+
+    const _addElements = (elements, parent = null, depth = 0) => {
         const newElements = [];
 
         Children.forEach(elements, (currentElement, currentElementIndex) => {
-            const _shouldInsert = () => shouldInsert({
+            const _shouldInsert = (position) => shouldInsert({
                 elements,
                 parent,
                 currentElement,
                 currentElementIndex,
-                index,
-                currentIndex,
+                textIndex,
+                currentTextIndex,
                 depth,
                 totalLength,
-                contentLength
+                content,
+                contentLength,
+                position
             });
 
             if (typeof currentElement === 'string') {
                 if (_shouldInsert()) {
-                    const firstSlice = currentElement.slice(0, index - currentIndex);
-                    const lastSlice = currentElement.slice(index - currentIndex);
+                    const firstSlice = currentElement.slice(0, textIndex - currentTextIndex);
+                    const lastSlice = currentElement.slice(textIndex - currentTextIndex);
 
                     if (typeof content === 'string') {
                         newElements.push(`${firstSlice}${content}${lastSlice}`);
@@ -302,28 +418,32 @@ export function insertContent(elements, content, index = 0, shouldInsert = shoul
                         if (lastSlice) newElements.push(lastSlice);
                     }
 
-                    currentIndex += contentLength;
+                    currentTextIndex += contentLength;
                 } else {
                     newElements.push(currentElement);
                 }
 
-                currentIndex += currentElement.length;
-            } else if (isValidElement(currentElement) && currentElement.props.children) {
-                if (_shouldInsert()) {
+                currentTextIndex += currentElement.length;
+            } else if (isValidElement(currentElement)) {
+                if (_shouldInsert("before")) {
                     newElements.push(content);
-                    currentIndex += contentLength;
+                    currentTextIndex += contentLength;
                 }
 
-                const id = currentElement.props.id ?? uuidv4();
-                newElements.push(cloneElement(
-                    currentElement,
-                    { id, key: id },
-                    _insertContent(currentElement.props.children, currentElement, depth + 1)
-                ));
+                if (currentElement.props.children) {
+                    const id = currentElement.props.id ?? uuidv4();
+                    newElements.push(cloneElement(
+                        currentElement,
+                        { id, key: id },
+                        _addElements(currentElement.props.children, currentElement, depth + 1)
+                    ));
+                } else {
+                    newElements.push(currentElement);
+                }
 
-                if (_shouldInsert()) {
+                if (_shouldInsert("after")) {
                     newElements.push(content);
-                    currentIndex += contentLength;
+                    currentTextIndex += contentLength;
                 }
             } else {
                 newElements.push(currentElement);
@@ -333,14 +453,14 @@ export function insertContent(elements, content, index = 0, shouldInsert = shoul
         return newElements;
     };
 
-    return _insertContent(elements);;
+    return _addElements(elements);
 }
 
-export function insertContentById(elements, id, content, index = 0) {
-    return insertContent(elements, content, index, (entry) => shouldInsertById({ ...entry, id }));
+export function addElementsById(elements, id, content, index = 0) {
+    return addElements(elements, content, index, (entry) => shouldInsertById({ ...entry, id }));
 }
 
-export function insertContentByPreference(elements, content, index = 0, insertionPreference = 'outerMost') {
+export function addElementsByPreference(elements, content, index = 0, insertionPreference = 'outerMost') {
     let shouldInsert;
 
     if (insertionPreference === 'leftMost') shouldInsert = shouldInsertLeftMost;
@@ -348,18 +468,19 @@ export function insertContentByPreference(elements, content, index = 0, insertio
     else if (insertionPreference === 'outerMost') shouldInsert = shouldInsertOuterMost;
     else throw new Error('Ivalid option!');
 
-    return insertContent(elements, content, index, shouldInsert);
+    return addElements(elements, content, index, shouldInsert);
 }
 
-export function removeContent(elements, startIndex, endIndex = null, removeEmptyElements = true) {
+export function removeElements(elements, startIndex, endIndex = null, removeEmptyElements = true) {
     let _currentIndex = 0;
 
-    const _removeContent = (elements) => Children.map(elements, (child) => {
+    const _removeElements = (elements) => Children.map(elements, (child) => {
         if (typeof child === 'string') {
-            if (_currentIndex + child.length <= startIndex) {
-                _currentIndex += child.length;
-                return child;
-            } else if (!endIndex || _currentIndex >= endIndex) {
+            if (
+                _currentIndex + child.length <= startIndex ||
+                !endIndex ||
+                _currentIndex >= endIndex
+            ) {
                 _currentIndex += child.length;
                 return child;
             } else {
@@ -370,7 +491,7 @@ export function removeContent(elements, startIndex, endIndex = null, removeEmpty
                 return !removeEmptyElements || newChild ? newChild : null;
             }
         } else if (isValidElement(child) && child.props.children) {
-            const updatedChildren = _removeContent(child.props.children);
+            const updatedChildren = _removeElements(child.props.children);
             return !removeEmptyElements || updatedChildren ?
                 cloneElement(child,
                     {
@@ -383,7 +504,7 @@ export function removeContent(elements, startIndex, endIndex = null, removeEmpty
         return child;
     });
 
-    return _removeContent(elements);
+    return _removeElements(elements);
 }
 
 // review

@@ -1,11 +1,11 @@
 {
-  "name": "typewavejs-monorepo",
+  "name": "@typewavejs/monorepo",
   "private": true,
   "scripts": {
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "dev": "node ./scripts/dev.js",
-    "react": "node ./scripts/dev.js typewavejs-react"
+    "react": "node ./scripts/dev.js react"
   },
   "keywords": [],
   "author": "Diogo Marques Crava",

@@ -1,6 +1,6 @@
 {
   "name": "@typewavejs/react",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "",
   "author": "Diogo Marques Crava",
   "license": "MIT",
@@ -19,7 +19,7 @@
   "scripts": {
     "build": "vite build",
     "test": "vitest run src",
-    "dev": "vite serve ./examples",
+    "dev": "vite serve",
     "prettier": "prettier --write \"**/*.{md,js}\"",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },

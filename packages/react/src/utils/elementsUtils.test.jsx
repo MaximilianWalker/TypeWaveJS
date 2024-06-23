@@ -9,10 +9,10 @@ import {
     generateLineBreaks,
     countCharacters,
     findElementAtIndex,
-    insertContent,
-    insertContentByPreference,
-    insertContentById,
-    removeContent
+    addElements,
+    addElementsByPreference,
+    addElementsById,
+    removeElements
 } from './elementsUtils';
 
 vi.mock('uuid', () => {
@@ -385,35 +385,35 @@ describe('findElementAtIndex', () => {
     });
 });
 
-describe('insertContentByPreference', () => {
+describe('addElementsByPreference', () => {
     it('inserts characters at specified index in a simple string', () => {
         const nodes = "Hello, world!";
-        const modified = insertContentByPreference(nodes, " test", 5);
+        const modified = addElementsByPreference(nodes, " test", 5);
         expect(modified).toEqual(["Hello test, world!"]);
     });
 
     it('inserts characters at the start', () => {
         const nodes = "Hello";
-        const modified = insertContentByPreference(nodes, " test", 0);
+        const modified = addElementsByPreference(nodes, " test", 0);
         expect(modified).toEqual([" testHello"]);
     });
 
     it('inserts characters at the end', () => {
         const nodes = "Hello";
-        const modified = insertContentByPreference(nodes, " test", 5);
+        const modified = addElementsByPreference(nodes, " test", 5);
         expect(modified).toEqual(["Hello test"]);
     });
 
     // create a tests that handle nodes as an empty array
     it('inserts characters at the end of an empty array', () => {
         const nodes = [];
-        const modified = insertContentByPreference(nodes, " test", 0);
+        const modified = addElementsByPreference(nodes, " test", 0);
         expect(modified).toEqual([" test"]);
     });
 
     it('handles nested structures correctly: leftMost', () => {
         const nodes = addIdsToElements(<div><span>Hello</span><span> world!</span></div>);
-        const { container } = render(insertContentByPreference(nodes, ", test", 5, "leftMost"));
+        const { container } = render(addElementsByPreference(nodes, ", test", 5, "leftMost"));
         const [firstSpan, secondSpan] = container.getElementsByTagName('span');
         expect(container.getElementsByTagName('span').length).toBe(2);
         expect(firstSpan.textContent).toBe("Hello, test");
@@ -422,14 +422,14 @@ describe('insertContentByPreference', () => {
 
     it('handles nested structures correctly: leftMost edge case', () => {
         const nodes = addIdsToElements(<div><span>Hello</span></div>);
-        const { container } = render(insertContentByPreference(nodes, ", test", 0, "leftMost"));
+        const { container } = render(addElementsByPreference(nodes, ", test", 0, "leftMost"));
         const [span] = container.getElementsByTagName('span');
         expect(span.textContent).toBe(", testHello");
     });
 
     it('handles nested structures correctly: outerMost 1', () => {
         const nodes = addIdsToElements(<div><span>Hello</span><span> world!</span></div>);
-        const { container } = render(insertContentByPreference(nodes, ", test", 5, "outerMost"));
+        const { container } = render(addElementsByPreference(nodes, ", test", 5, "outerMost"));
         const [firstSpan, middleText, secondSpan] = container.firstChild.childNodes;
         expect(firstSpan.textContent).toBe("Hello");
         expect(middleText.textContent).toBe(", test");
@@ -438,7 +438,7 @@ describe('insertContentByPreference', () => {
 
     it('handles nested structures correctly: outerMost 2', () => {
         const nodes = addIdsToElements(<div>Hello<span> world!</span></div>);
-        const { container } = render(insertContentByPreference(nodes, ", test", 5, "outerMost"));
+        const { container } = render(addElementsByPreference(nodes, ", test", 5, "outerMost"));
         const [text, span] = container.firstChild.childNodes;
         expect(text.textContent).toBe("Hello, test");
         expect(span.textContent).toBe(" world!");
@@ -446,7 +446,7 @@ describe('insertContentByPreference', () => {
 
     it('handles nested structures correctly: outerMost 3', () => {
         const nodes = addIdsToElements(<div><span>Hello</span> world!</div>);
-        const { container } = render(insertContentByPreference(nodes, ", test", 5, "outerMost"));
+        const { container } = render(addElementsByPreference(nodes, ", test", 5, "outerMost"));
         const [span, text] = container.firstChild.childNodes;
         expect(span.textContent).toBe("Hello");
         expect(text.textContent).toBe(", test world!");
@@ -454,7 +454,7 @@ describe('insertContentByPreference', () => {
 
     it('handles nested structures correctly: outerMost 4', () => {
         const nodes = addIdsToElements(<span>Hello</span>);
-        const { container } = render(insertContentByPreference(nodes, ", test", 5, "outerMost"));
+        const { container } = render(addElementsByPreference(nodes, ", test", 5, "outerMost"));
         const [firstSpan, middleText] = container.childNodes;
         expect(firstSpan.textContent).toBe("Hello");
         expect(middleText.textContent).toBe(", test");
@@ -463,7 +463,7 @@ describe('insertContentByPreference', () => {
     it('handles nested structures correctly: outerMost 5: inserting react elements', () => {
         const nodes = addIdsToElements(<span>Hello</span>);
         const insertingNodes = addIdsToElements(<span> world!</span>);
-        const { container } = render(insertContentByPreference(nodes, insertingNodes, 5, "outerMost"));
+        const { container } = render(addElementsByPreference(nodes, insertingNodes, 5, "outerMost"));
         const [firstSpan, secondSpan] = container.childNodes;
         expect(firstSpan.textContent).toBe("Hello");
         expect(secondSpan.textContent).toBe(" world!");
@@ -471,7 +471,7 @@ describe('insertContentByPreference', () => {
 
     it('handles nested structures correctly: rightMost', () => {
         const nodes = addIdsToElements(<div><span>Hello</span><span> world!</span></div>);
-        const { container } = render(insertContentByPreference(nodes, ", test", 5, "rightMost"));
+        const { container } = render(addElementsByPreference(nodes, ", test", 5, "rightMost"));
         const [firstSpan, secondSpan] = container.getElementsByTagName('span');
         expect(container.getElementsByTagName('span').length).toBe(2);
         expect(firstSpan.textContent).toBe("Hello");
@@ -480,12 +480,12 @@ describe('insertContentByPreference', () => {
 
     it('handles nested structures correctly: rightMost edge case', () => {
         const nodes = addIdsToElements(<div><span>Hello</span></div>);
-        const { container } = render(insertContentByPreference(nodes, ", test", 5, "rightMost"));
+        const { container } = render(addElementsByPreference(nodes, ", test", 5, "rightMost"));
         const [span] = container.getElementsByTagName('span');
         expect(span.textContent).toBe("Hello, test");
     });
 
-    it('insertContentByPreference: stress test', () => {
+    it('addElementsByPreference: stress test', () => {
         const complexStructure = addIdsToElements(
             <div>
                 <p>This is a paragraph with some text, and more text follows.</p>
@@ -501,15 +501,15 @@ describe('insertContentByPreference', () => {
             </div>
         );
 
-        const modifiedStructure = insertContentByPreference(complexStructure, 'X', 5000, 'leftMost'); // Assuming the 500th position is the target
+        const modifiedStructure = addElementsByPreference(complexStructure, 'X', 5000, 'leftMost'); // Assuming the 500th position is the target
         expect(modifiedStructure).not.toBeNull();
     });
 });
 
-describe('insertContentById', () => {
+describe('addElementsById', () => {
     it('should insert content into a string when input is a string and id is null', () => {
         const element = "Hello World";
-        const updatedElement = insertContentById(element, null, ' Inserted', 5);
+        const updatedElement = addElementsById(element, null, ' Inserted', 5);
         expect(updatedElement).toEqual(['Hello Inserted World']);
     });
 
@@ -521,7 +521,7 @@ describe('insertContentById', () => {
             </div>
         );
 
-        const updatedElements = insertContentById(elements, null, ' Inserted', 5);
+        const updatedElements = addElementsById(elements, null, ' Inserted', 5);
 
         const { container } = render(updatedElements);
         const spans = container.querySelectorAll('span');
@@ -537,7 +537,7 @@ describe('insertContentById', () => {
             </div>
         );
 
-        const updatedElements = insertContentById(elements, 'mock-uuid-1', ' Inserted', 5);
+        const updatedElements = addElementsById(elements, 'mock-uuid-1', ' Inserted', 5);
 
         const { container } = render(updatedElements);
         const span = container.querySelector('span');
@@ -553,7 +553,7 @@ describe('insertContentById', () => {
             </div>
         );
 
-        const updatedElements = insertContentById(elements, 'mock-uuid-2', ' Inserted', 11);
+        const updatedElements = addElementsById(elements, 'mock-uuid-2', ' Inserted', 11);
         const { container } = render(updatedElements);
         const spans = container.querySelectorAll('span');
 
@@ -568,7 +568,7 @@ describe('insertContentById', () => {
             </div>
         );
 
-        const updatedElements = insertContentById(elements, 'mock-uuid-1', ' Inserted', 5);
+        const updatedElements = addElementsById(elements, 'mock-uuid-1', ' Inserted', 5);
 
         const { container } = render(updatedElements);
         const span = container.querySelector('span');
@@ -576,7 +576,7 @@ describe('insertContentById', () => {
         expect(span.textContent).toBe('Hello Inserted World');
     });
 
-    it('insertContentById: stress test', () => {
+    it('addElementsById: stress test', () => {
         const complexStructure = addIdsToElements(
             <div>
                 <div>
@@ -596,7 +596,7 @@ describe('insertContentById', () => {
         const specificId = 'mock-uuid-4';
         const insertPosition = 36;
 
-        const modifiedStructure = insertContentById(complexStructure, specificId, 'Inserted content here', insertPosition);
+        const modifiedStructure = addElementsById(complexStructure, specificId, 'Inserted content here', insertPosition);
 
         const { container } = render(modifiedStructure);
 
@@ -606,26 +606,26 @@ describe('insertContentById', () => {
     });
 });
 
-describe('removeContent', () => {
+describe('removeElements', () => {
     it('removes characters between specified indexes in a simple string', () => {
         const nodes = "Hello, world!";
-        const modified = removeContent(nodes, 5, 7);
+        const modified = removeElements(nodes, 5, 7);
         expect(modified).toBe("Helloworld!");
     });
 
     it('handles removal across boundaries in nested elements', () => {
         const nodes = addIdsToElements(<div><span>Hello, </span><span>world!</span></div>);
-        const { container } = render(removeContent(nodes, 3, 9));
+        const { container } = render(removeElements(nodes, 3, 9));
         expect(container.textContent).toBe("Helrld!");
     });
 
     it('handles complete removal', () => {
         const nodes = "Hello, world!";
-        const modified = removeContent(nodes, 0, 13);
+        const modified = removeElements(nodes, 0, 13);
         expect(modified).toBeNull();
     });
 
-    it('removeContent: stress test', () => {
+    it('removeElements: stress test', () => {
         const complexStructure = addIdsToElements(
             <div>
                 <p>This is a paragraph with some text, and more text follows.</p>
@@ -641,11 +641,11 @@ describe('removeContent', () => {
             </div>
         );
 
-        const modifiedStructure = removeContent(complexStructure, 500, 1000);
+        const modifiedStructure = removeElements(complexStructure, 500, 1000);
         expect(modifiedStructure).not.toBeNull();
     });
 
-    it('removeContent: stress test 2', () => {
+    it('removeElements: stress test 2', () => {
         const complexStructure = addIdsToElements(
             <div>
                 <p>This is a paragraph with some text, and more text follows.</p>
@@ -661,7 +661,7 @@ describe('removeContent', () => {
             </div>
         );
 
-        const modifiedStructure = removeContent(complexStructure, 5);
+        const modifiedStructure = removeElements(complexStructure, 5);
         expect(modifiedStructure).not.toBeNull();
     });
 });
