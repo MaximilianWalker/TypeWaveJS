@@ -51,7 +51,39 @@ const events = [
             </>
         )
     },
-
+    {
+        type: "pause",
+        value: 500
+    },
+    {
+        type: "type",
+        value: (
+            <>
+                {"\n> And I'm a "}
+                <b>
+                    <span style={{ color: '#808080' }}>{"<"}</span>
+                    <span style={{ color: '#569CD6' }}>FullStack Developer</span>
+                    <span style={{ color: '#808080' }}>{">"}</span>
+                </b>
+            </>
+        )
+    },
+    {
+        type: "pause",
+        value: 20000
+    },
+    {
+        type: "type",
+        value: "\n> Scroll to continue..."
+    },
+    {
+        type: "pause",
+        value: 20000
+    },
+    {
+        type: "type",
+        value: "\n> Knock knock... is anyone there?"
+    }
 ];
 
 function Example() {

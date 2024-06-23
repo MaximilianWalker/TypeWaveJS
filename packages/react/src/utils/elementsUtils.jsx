@@ -272,71 +272,70 @@ const shouldInsertRightMost = ({ currentElement, textIndex, currentTextIndex, to
     ((textIndex === totalLength && currentTextIndex + currentElement.length === totalLength) || textIndex < currentTextIndex + currentElement.length)
 );
 
-const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength, content }) => {
-    return (
+const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength }) => (
+    (
         (
+            typeof currentElement === 'string' &&
+            textIndex >= currentTextIndex &&
             (
-                typeof currentElement === 'string' &&
-                textIndex >= currentTextIndex &&
+                textIndex < currentTextIndex + currentElement.length ||
                 (
-                    textIndex < currentTextIndex + currentElement.length ||
+                    textIndex === currentTextIndex + currentElement.length &&
                     (
-                        textIndex === currentTextIndex + currentElement.length &&
                         (
-                            (
-                                currentElementIndex === elements.length - 1 &&
-                                depth === 0
-                            )
-                            ||
-                            (
-                                currentElementIndex !== elements.length - 1 &&
-                                countCharacters(elements[currentElementIndex + 1]) > 0
-                            )
+                            currentElementIndex === elements.length - 1 &&
+                            depth === 0
                         )
-                    )
-                )
-            )
-            ||
-            (
-                isValidElement(currentElement) &&
-                textIndex === currentTextIndex &&
-                (
-                    (
-                        position === 'before' &&
-                        contentLength > 0 &&
+                        ||
                         (
-                            (
-                                currentElementIndex === 0 &&
-                                depth === 0
-                            )
-                            ||
-                            (
-                                currentElementIndex !== 0 &&
-                                typeof elements[currentElementIndex - 1] !== 'string'
-                            )
-                        )
-                    )
-                    ||
-                    (
-                        position === 'after' &&
-                        (
-                            (
-                                currentElementIndex === elements.length - 1 &&
-                                depth === 0
-                            )
-                            ||
-                            (
-                                currentElementIndex !== elements.length - 1 &&
-                                countCharacters(elements[currentElementIndex + 1]) > 0 &&
-                                typeof elements[currentElementIndex + 1] !== 'string'
-                            )
+                            currentElementIndex !== elements.length - 1 &&
+                            countCharacters(elements[currentElementIndex + 1]) > 0
                         )
                     )
                 )
             )
         )
-    );
-}
+        ||
+        (
+            isValidElement(currentElement) &&
+            textIndex === currentTextIndex &&
+            (
+                (
+                    position === 'before' &&
+                    contentLength > 0 &&
+                    (
+                        (
+                            currentElementIndex === 0 &&
+                            depth === 0
+                        )
+                        ||
+                        (
+                            currentElementIndex !== 0 &&
+                            countCharacters(elements[currentElementIndex + 1]) > 0 &&
+                            typeof elements[currentElementIndex - 1] !== 'string'
+                        )
+                    )
+                )
+                ||
+                (
+                    position === 'after' &&
+                    (
+                        (
+                            currentElementIndex === elements.length - 1 &&
+                            depth === 0
+                        )
+                        ||
+                        (
+                            currentElementIndex !== elements.length - 1 &&
+                            countCharacters(elements[currentElementIndex + 1]) > 0 &&
+                            typeof elements[currentElementIndex + 1] !== 'string'
+                        )
+                    )
+                )
+            )
+        )
+    )
+);
 
 const shouldInsertById = ({ currentElement, parent, id, textIndex, currentTextIndex }) => (
     (
