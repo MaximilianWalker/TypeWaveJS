@@ -81,7 +81,7 @@ export function* iterateElements(elements, method = 'depth') {
         Children.map(elements, child => ({ element: child, depth: 0 }));
 
     while (toProcess.length > 0) {
-        const { element, parent, childIndex, depth } = method === 'depth' ? toProcess.pop() : toProcess.shift();
+        const { element, parent, childIndex, depth } = toProcess.shift();
 
         if (!element) continue;
         yield {
@@ -106,7 +106,7 @@ export function* iterateElements(elements, method = 'depth') {
             );
 
             if (method === 'depth')
-                toProcess.push(...entries.reverse());
+                toProcess.unshift(...entries);
             else
                 toProcess.push(...entries);
         }
@@ -181,7 +181,7 @@ export function* iterateAnimation(elements) {
                 element: newElement,
                 parentId: entry.parent?.props.id
             };
-            
+
             entries = [];
             index++;
         } else if (isValidElement(entry.element)) {
