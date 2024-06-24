@@ -7,6 +7,10 @@
   "type": "module",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MaximilianWalker/TypeWaveJS.git"
+  },
   "keywords": [
     "javascript",
     "animated",
