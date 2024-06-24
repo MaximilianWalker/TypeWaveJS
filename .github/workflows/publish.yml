@@ -18,7 +18,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@typewavejs'
       - run: npm ci
-      - run: npm run build --workspaces
-      - run: npm publish --access public
+      - run: npm run build
+      - run: npm run publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
