@@ -8,7 +8,8 @@ export default defineConfig({
   build: {
     lib: {
       entry: 'src',
-      name: '@typewavejs/react'
+      name: '@typewavejs/react',
+      fileName: 'index'
     },
     rollupOptions: {
       external: ['react', 'react-dom'],
