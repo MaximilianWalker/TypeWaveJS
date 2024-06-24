@@ -1,0 +1,18 @@
+# Specific build files
+/dist/*.map
+
+# Test and Examples
+/test/
+/examples/
+
+# Development configuration
+/.babelrc
+/.eslintrc.json
+/.vite/
+/vite.config.js
+
+# System files
+.DS_Store
+
+# Logs
+*.log

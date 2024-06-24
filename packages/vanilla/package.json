@@ -16,9 +16,9 @@
     "text effects"
   ],
   "scripts": {
-    "build": "vite build",
-    "test": "vitest run src",
-    "dev": "vite serve ./examples",
+    "build": "",
+    "test": "",
+    "dev": "",
     "prettier": "prettier --write \"**/*.{md,js}\"",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },

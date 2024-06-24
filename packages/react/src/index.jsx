@@ -1,2 +1,1 @@
-import TypeWave from './typewave';
-export { TypeWave };
+export { default as TypeWave } from './typewave';

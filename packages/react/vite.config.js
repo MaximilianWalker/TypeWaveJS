@@ -5,7 +5,21 @@ import path from 'path';
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  root: './examples/',
+  build: {
+    lib: {
+      entry: 'src',
+      name: '@typewavejs/react'
+    },
+    rollupOptions: {
+      external: ['react', 'react-dom'],
+      output: {
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM'
+        }
+      }
+    }
+  },
   test: {
     environment: 'jsdom'
   },
@@ -14,4 +28,4 @@ export default defineConfig({
       '@typewavejs/react': path.join(__dirname, 'src')
     }
   }
-})
+});
