@@ -10,56 +10,70 @@ function getAllPackageJsonFiles() {
         .filter(file => fs.existsSync(file));
 }
 
-function versionExists(packageName, version, callback) {
-    const npmView = spawn('npm', ['view', `${packageName}@${version}`, 'version']);
+function versionExists(packageName, version) {
+    return new Promise((resolve, reject) => {
+        const npmView = spawn('npm', ['view', `${packageName}@${version}`, 'version'], {
+            shell: true
+        });
 
-    let output = '';
-    npmView.stdout.on('data', data => output += data.toString());
+        let output = '';
+        npmView.stdout.on('data', data => output += data.toString());
 
-    npmView.on('close', code => {
-        if (code === 0 && output.trim() === version) {
-            callback(true);
-        } else {
-            callback(false);
-        }
-    });
+        npmView.on('close', code => {
+            if (code === 0 && output.trim() === version) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
 
-    npmView.stderr.on('data', data => {
-        console.error(`Error: ${data}`);
+        npmView.on('error', reject);
     });
 }
 
-function publishPackages() {
+function publishPackage(dir, packageName, version, npmPublishArgs) {
+    return new Promise((resolve, reject) => {
+        const npmPublish = spawn('npm', ['publish', ...npmPublishArgs], {
+            cwd: dir,
+            stdio: 'inherit',
+            shell: true
+        });
+
+        npmPublish.on('close', code => {
+            if (code === 0) {
+                console.log(`Successfully published ${packageName}@${version}`);
+                resolve();
+            } else {
+                console.error(`Failed to publish ${packageName}@${version}`);
+                reject(new Error('Publish failed'));
+            }
+        });
+
+        npmPublish.on('error', reject);
+    });
+}
+
+async function publishPackages() {
     const npmPublishArgs = process.argv.slice(2);
     const packageFiles = getAllPackageJsonFiles();
-    console.log(packageFiles)
 
-    packageFiles.forEach(file => {
+    for (const file of packageFiles) {
         const dir = path.dirname(file);
         const packageJson = JSON.parse(fs.readFileSync(file, 'utf8'));
         const { name: packageName, version } = packageJson;
 
-        versionExists(packageName, version, exists => {
+        try {
+            const exists = await versionExists(packageName, version);
             if (!exists) {
                 console.log(`Version ${version} of ${packageName} does not exist. Publishing...`);
-                const npmPublish = spawn('npm', ['publish', ...npmPublishArgs], {
-                    cwd: dir,
-                    stdio: 'inherit',
-                    shell: true
-                });
-
-                npmPublish.on('close', code => {
-                    if (code === 0) {
-                        console.log(`Successfully published ${packageName}@${version}`);
-                    } else {
-                        console.error(`Failed to publish ${packageName}@${version}`);
-                    }
-                });
+                await publishPackage(dir, packageName, version, npmPublishArgs);
             } else {
                 console.log(`Version ${version} of ${packageName} already exists. Skipping publish.`);
             }
-        });
-    });
+        } catch (error) {
+            console.error(`An error occurred while checking or publishing ${packageName}@${version}: ${error}`);
+        }
+    }
 }
 
 publishPackages();
