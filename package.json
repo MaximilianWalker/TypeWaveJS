@@ -2,7 +2,7 @@
   "name": "@typewavejs/monorepo",
   "private": true,
   "scripts": {
-    "publish": "npm publish --workspaces --access public",
+    "publish": "node ./scripts/publish.js --workspaces --access public",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "dev": "node ./scripts/dev.js",
