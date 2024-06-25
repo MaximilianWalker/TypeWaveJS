@@ -45,7 +45,7 @@ const TypeWave = forwardRef(({
 	const [deleteSpeed, setDeleteSpeed] = useState(deleteSpeedProp);
 
 	const cursor = useMemo(() => (
-		<span id="cursor" key="cursor" className="typewriter__cursor">
+		<span id="cursor" key="cursor" className="typewave__cursor">
 			{cursorCharacter}
 		</span>
 	), [cursorCharacter]);
