@@ -2,87 +2,57 @@ import React, { useState } from 'react';
 import { TypeWave } from '@typewavejs/react';
 import './Example.css';
 
+const LOOP_PAUSE = 5000;
+
+
 const events = [
     {
         type: "type",
-        value: "> Hello World!"
+        value: "<DiogoCrava />"
     },
     {
         type: "pause",
-        value: 1000
+        value: LOOP_PAUSE
     },
     {
-        type: "delete",
-        value: 6
+        type: "delete"
     },
     {
         type: "type",
-        value: "ups..."
+        value: "<FullStack />"
     },
     {
         type: "pause",
-        value: 500
+        value: LOOP_PAUSE
     },
     {
-        type: "delete",
-        value: 6
+        type: "delete"
     },
     {
         type: "type",
-        value: "user! ヽ(´▽`)/"
+        value: "<Dev />"
     },
     {
         type: "pause",
-        value: 600
+        value: LOOP_PAUSE
+    },
+    {
+        type: "delete"
     },
     {
         type: "type",
-        value: "\n"
-    },
-    {
-        type: "type",
-        value: (
-            <>
-                {"> My name is "}
-                <b style={{ color: "#4EC9B0" }}>
-                    Diogo Crava
-                </b>
-                {"!"}
-            </>
-        )
+        value: "<Code />"
     },
     {
         type: "pause",
-        value: 500
+        value: LOOP_PAUSE
     },
     {
-        type: "type",
-        value: (
-            <>
-                {"\n> And I'm a "}
-                <b>
-                    <span style={{ color: '#808080' }}>{"<"}</span>
-                    <span style={{ color: '#569CD6' }}>FullStack Developer</span>
-                    <span style={{ color: '#808080' }}>{">"}</span>
-                </b>
-            </>
-        )
+        type: "delete"
     },
     {
-        type: "pause",
-        value: 20000
-    },
-    {
-        type: "type",
-        value: "\n> Scroll to continue..."
-    },
-    {
-        type: "pause",
-        value: 20000
-    },
-    {
-        type: "type",
-        value: "\n> Knock knock... is anyone there?"
+        type: "loop",
+        value: 0
     }
 ];
 

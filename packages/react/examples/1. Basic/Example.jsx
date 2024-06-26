@@ -15,7 +15,11 @@ function Example() {
         <div>
             <h1>Typewave.js React Example</h1>
             <h1>Basic</h1>
-            <TypeWave events={events} cursorCharacter="_" />
+            <TypeWave
+                component="h1"
+                events={events}
+                cursorCharacter="_"
+            />
         </div>
     );
 }

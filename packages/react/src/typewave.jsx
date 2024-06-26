@@ -27,7 +27,7 @@ import './typewave.css';
 const TypeWave = forwardRef(({
 	play = true,
 	events: eventsProp,
-	component: Component = 'div',
+	component: Component = 'span',
 	showCursor = true,
 	cursorCharacter: cursorCharacterProp = '|',
 	typeSpeed: typeSpeedProp = 250,
@@ -163,7 +163,7 @@ const TypeWave = forwardRef(({
 			if (animationFunction) animationFunction();
 			if (onEvent) onEvent(currentEvent, eventIndex);
 
-			const { animation, instant, remove } = currentEvent;
+			const { type, animation, instant, remove } = currentEvent;
 
 			if (instant) {
 				setEventIndex(prevIndex => prevIndex + 1);
@@ -182,7 +182,10 @@ const TypeWave = forwardRef(({
 
 			const { index, size } = animation;
 
-			if (index >= size - 1)
+			if (
+				(type === 'delete' && !size && elementsSize === 1) ||
+				(size && index >= size - 1)
+			)
 				setEventIndex(prevIndex => prevIndex + 1);
 
 			setEvents(prevEvents => prevEvents.map((event, i) => {
@@ -232,7 +235,7 @@ TypeWave.propTypes = {
 	events: PropTypes.arrayOf(
 		PropTypes.shape({
 			type: PropTypes.oneOf(EVENT_TYPES).isRequired,
-			value: PropTypes.any.isRequired,
+			value: PropTypes.any,
 			delay: PropTypes.number,
 			instant: PropTypes.bool,
 			remove: PropTypes.bool
