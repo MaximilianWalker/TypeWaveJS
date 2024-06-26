@@ -166,13 +166,11 @@ const TypeWave = forwardRef(({
 			const { animation, instant, remove } = currentEvent;
 
 			if (instant) {
-				console.log('instant')
 				setEventIndex(prevIndex => prevIndex + 1);
 				return;
 			}
 
 			if (remove) {
-				console.log('remove')
 				setEvents(prevEvents => prevEvents.filter((_, index) => index != eventIndex));
 				return;
 			}
@@ -211,7 +209,6 @@ const TypeWave = forwardRef(({
 
 	useEffect(() => {
 		setEvents(processEvents(eventsProp));
-		console.log(processEvents(eventsProp))
 	}, [eventsProp]);
 
 	useEffect(() => {
