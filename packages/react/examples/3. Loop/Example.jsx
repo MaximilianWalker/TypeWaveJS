@@ -1,28 +1,30 @@
 import React, { useState } from 'react';
 import { TypeWave } from '../../src';
 
-const animation = [
+const events = [
     {
         type: 'type',
-        value: 'Hello, World!'
+        value: 'Loading'
+    },
+    {
+        type: 'type',
+        value: '...'
     },
     {
         type: 'delete',
-        value: 13
+        value: 3
     },
     {
         type: 'loop',
-        value: 0
+        value: 1
     }
 ];
 
 function Example() {
-    const [events, setEvents] = useState(animation);
-
     return (
         <div>
             <h1>Typewave.js React Example</h1>
-            <h1>Basic</h1>
+            <h1>Basics</h1>
             <TypeWave events={events} cursorCharacter="_" />
         </div>
     );

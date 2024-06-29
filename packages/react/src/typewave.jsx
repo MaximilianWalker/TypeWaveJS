@@ -212,6 +212,11 @@ const TypeWave = forwardRef(({
 
 	useEffect(() => {
 		setEvents(processEvents(eventsProp));
+		return () => {
+			cancelAnimation();
+			setEventIndex(0);
+			setElements([]);
+		};
 	}, [eventsProp]);
 
 	useEffect(() => {
