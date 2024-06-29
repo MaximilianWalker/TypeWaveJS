@@ -239,9 +239,6 @@ const TypeWave = forwardRef(({
 		return () => cancelAnimation();
 	}, [play, currentEvent]);
 
-	console.log(events)
-	console.log(events)
-
 	return (
 		<Component ref={ref} {...props}>
 			{processedElements}
