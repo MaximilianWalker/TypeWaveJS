@@ -18,14 +18,18 @@ const events = [
         type: 'type',
         value: 'l'
     },
-    // {
-    //     type: 'move',
-    //     value: 4
-    // },
-    // {
-    //     type: 'type',
-    //     value: 'o'
-    // }
+    {
+        type: 'move',
+        value: 4
+    },
+    {
+        type: 'type',
+        value: 'o'
+    },
+    {
+        type: 'move',
+        value: 4
+    }
 ];
 
 function Example() {

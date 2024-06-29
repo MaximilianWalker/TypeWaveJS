@@ -38,7 +38,7 @@ export function processEvent(event) {
             ...event,
             animation: !instant ? {
                 index: 0,
-                size: value
+                size: Math.abs(value)
             } : null
         };
     }

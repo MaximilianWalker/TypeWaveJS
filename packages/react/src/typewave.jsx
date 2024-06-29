@@ -102,11 +102,21 @@ const TypeWave = forwardRef(({
 	});
 
 	const onMove = () => setCursorIndex((prevIndex) => {
-		const newIndex = prevIndex + currentEvent.value;
+		const { value, instant, animation } = currentEvent;
+
+		let newIndex = prevIndex;
+		if (instant)
+			newIndex += value;
+		else if (value > 0)
+			newIndex += 1;
+		else if (value < 0)
+			newIndex -= 1;
+
 		if (newIndex > 0)
 			return 0;
 		else if (Math.abs(newIndex) > elementsSize)
 			return elementsSize;
+
 		return newIndex;
 	});
 
@@ -210,6 +220,7 @@ const TypeWave = forwardRef(({
 		}
 	};
 
+	// bug where the animation is canceled after it starts
 	useEffect(() => {
 		setEvents(processEvents(eventsProp));
 		return () => {
@@ -227,6 +238,9 @@ const TypeWave = forwardRef(({
 
 		return () => cancelAnimation();
 	}, [play, currentEvent]);
+
+	console.log(events)
+	console.log(events)
 
 	return (
 		<Component ref={ref} {...props}>

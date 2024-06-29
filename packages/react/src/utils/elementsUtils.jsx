@@ -377,15 +377,14 @@ export function addElements(elements, content, textIndex, shouldInsert) {
     let contentLength = countCharacters(content);
 
     if (textIndex < 0)
-        textIndex = contentLength + textIndex;
+        textIndex = totalLength + textIndex;
     else if (textIndex == null)
         textIndex = totalLength;
 
     let currentTextIndex = 0;
 
-    if (content?.props?.id === 'cursor') {
+    if (content?.props?.id === 'cursor')
         contentLength = 0;
-    }
 
     const _addElements = (elements, parent = null, depth = 0) => {
         const newElements = [];
