@@ -8,6 +8,7 @@ import React, {
 	memo
 } from 'react';
 import PropTypes from 'prop-types';
+import { v4 as uuidv4 } from 'uuid';
 // import usePrevious from './hooks/usePrevious';
 import {
 	processEvent,
@@ -44,32 +45,33 @@ const TypeWave = forwardRef(({
 	const [moveSpeed, setMoveSpeed] = useState(moveSpeedProp);
 	const [deleteSpeed, setDeleteSpeed] = useState(deleteSpeedProp);
 
-	const cursor = useMemo(() => (
-		<span id="cursor" key="cursor" className="typewave__cursor">
-			{cursorCharacter}
-		</span>
-	), [cursorCharacter]);
-
 	// ELEMENTS
 	const [elements, setElements] = useState([]);
 	const [cursorIndex, setCursorIndex] = useState(0);
 	const elementsSize = useMemo(() => countCharacters(elements), [elements]);
-	const processedElements = useMemo(() => (
-		showCursor ?
-			addElementsByPreference(
-				elements,
-				cursor,
-				cursorIndex !== 0 ? cursorIndex : null,
-				'outerMost'
-			)
-			:
-			elements
-	), [elements, cursorIndex, showCursor, cursorCharacter]);
 
 	// EVENTS
 	const [events, setEvents] = useState([]);
 	const [eventIndex, setEventIndex] = useState(0);
 	const currentEvent = useMemo(() => (events[eventIndex] ? { ...events[eventIndex] } : null), [events, eventIndex]);
+
+	// CURSOR
+	const cursor = (
+		<span id="cursor" key={uuidv4()} className="typewave__cursor">
+			{cursorCharacter}
+		</span>
+	);
+	// const elementsWithCursor = useMemo(() => (
+	// 	showCursor ?
+	// 		addElementsByPreference(
+	// 			elements,
+	// 			cursor,
+	// 			cursorIndex !== 0 ? cursorIndex : null,
+	// 			'outerMost'
+	// 		)
+	// 		:
+	// 		elements
+	// ), [elements, cursorIndex, showCursor, cursorCharacter]);
 
 	const addEvent = (event) => setEvents(prevEvents => [
 		...prevEvents,
@@ -241,7 +243,17 @@ const TypeWave = forwardRef(({
 
 	return (
 		<Component ref={ref} {...props}>
-			{processedElements}
+			{
+				showCursor ?
+					addElementsByPreference(
+						elements,
+						cursor,
+						cursorIndex !== 0 ? cursorIndex : null,
+						'outerMost'
+					)
+					:
+					elements
+			}
 		</Component>
 	);
 });
