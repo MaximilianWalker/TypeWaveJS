@@ -23,7 +23,7 @@
   "scripts": {
     "build": "vite build",
     "test": "vitest run src",
-    "dev": "vite ./examples --config ./vite.config.js",
+    "examples": "vite ./examples --config ./vite.config.js",
     "prettier": "prettier --write \"**/*.{md,js}\"",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0"
   },

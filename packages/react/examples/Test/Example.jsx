@@ -58,17 +58,13 @@ const events = [
 
 function Example() {
     return (
-        <div>
-            <h1>Typewave.js React Example</h1>
-            <h1>Basic</h1>
-            <TypeWave
-                className="hi"
-                typeSpeed={50}
-                deleteSpeed={50}
-                cursorCharacter="_"
-                events={events}
-            />
-        </div>
+        <TypeWave
+            className="hi"
+            typeSpeed={50}
+            deleteSpeed={50}
+            cursorCharacter="_"
+            events={events}
+        />
     );
 }
 

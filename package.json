@@ -5,8 +5,8 @@
     "publish": "node ./scripts/publish.js --workspaces --access public",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
-    "dev": "node ./scripts/dev.js",
-    "react": "node ./scripts/dev.js react"
+    "examples": "node ./scripts/examples.js",
+    "react": "node ./scripts/examples.js react"
   },
   "keywords": [],
   "author": "Diogo Marques Crava",

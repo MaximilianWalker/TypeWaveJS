@@ -23,15 +23,11 @@ function Example() {
     const [events, setEvents] = useState(animation);
 
     return (
-        <div>
-            <h1>Typewave.js React Example</h1>
-            <h1>Basic</h1>
-            <TypeWave
-                component="h1"
-                events={events}
-                cursorCharacter="_"
-            />
-        </div>
+        <TypeWave
+            component="h1"
+            events={events}
+            cursorCharacter="_"
+        />
     );
 }
 
