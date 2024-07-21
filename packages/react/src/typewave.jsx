@@ -61,17 +61,6 @@ const TypeWave = forwardRef(({
 			{cursorCharacter}
 		</span>
 	);
-	// const elementsWithCursor = useMemo(() => (
-	// 	showCursor ?
-	// 		addElementsByPreference(
-	// 			elements,
-	// 			cursor,
-	// 			cursorIndex !== 0 ? cursorIndex : null,
-	// 			'outerMost'
-	// 		)
-	// 		:
-	// 		elements
-	// ), [elements, cursorIndex, showCursor, cursorCharacter]);
 
 	const addEvent = (event) => setEvents(prevEvents => [
 		...prevEvents,
@@ -97,8 +86,6 @@ const TypeWave = forwardRef(({
 				return addElementsById(prevElements, parentId, element, cursorIndex !== 0 ? cursorIndex : null);
 			else
 				return addElementsByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
-
-			// return addElementsByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
 		}
 		return prevElements;
 	});
