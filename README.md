@@ -12,7 +12,7 @@
 </h2>
 
 <p align="center">
-  <img alt="NPM Downloads by package author" src="https://img.shields.io/npm-stat/dm/%40typewavejs?style=for-the-badge">
+  <img alt="NPM Downloads by package author" src="https://img.shields.io/npm-stat/dm/MaximilianWalker?style=for-the-badge">
   <img alt="GitHub License" src="https://img.shields.io/github/license/MaximilianWalker/TypeWaveJS?style=for-the-badge">
 </p>
 

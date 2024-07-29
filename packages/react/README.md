@@ -69,15 +69,18 @@ import { TypeWave } from 'TypeWaveJS';
 
 The `TypeWave JS` library offers a robust set of properties (props) that allow developers to customize and control the behavior of typing animations within their React applications:
 
-- **play** (`boolean`): Controls whether the animation should play automatically. Defaults to `true`.
-- **events** (`array`): An array of event objects that dictate the sequence and type of animations performed.
-- **component** (`elementType`): Specifies the type of React component or HTML element that should wrap the animated content. Defaults to a `div`.
-- **showCursor** (`boolean`): Determines whether to show a blinking cursor during the typing animation. Defaults to `true`.
-- **cursorCharacter** (`string`): The character used to represent the cursor. Defaults to `|`.
-- **typeSpeed** (`number`): The speed in milliseconds at which typing occurs. Defaults to `250`.
-- **moveSpeed** (`number`): The speed in milliseconds at which the cursor moves. Defaults to `250`.
-- **deleteSpeed** (`number`): The speed in milliseconds at which characters are deleted during the animation. Defaults to `250`.
-- **onEvent** (`func`): A callback function that is executed after each event is processed, providing access to the event details and index.
+| Prop                | Type          | Default  | Description                                                                                  |
+| ------------------- | ------------- | -------- | -------------------------------------------------------------------------------------------- |
+| **play**            | `boolean`     | `true`   | Controls whether the animation should play automatically.                                    |
+| **events**          | `array`       | Required | An array of event objects that dictate the sequence and type of animations performed.        |
+| **component**       | `elementType` | `span`    | Specifies the type of React component or HTML element that should wrap the animated content. |
+| **showCursor**      | `boolean`     | `true`   | Determines whether to show a blinking cursor during the typing animation.                    |
+| **cursorCharacter** | `string`      | `\|`     | The character used to represent the cursor.                                                  |
+| **typeSpeed**       | `number`      | `250`    | The speed in milliseconds at which typing occurs.                                            |
+| **moveSpeed**       | `number`      | `250`    | The speed in milliseconds at which the cursor moves.                                         |
+| **deleteSpeed**     | `number`      | `250`    | The speed in milliseconds at which characters are deleted during the animation.              |
+| **onEvent**         | `func`        | `null`   | A callback function that is executed after each event is processed.                          |
+
 
 ### Event Configuration
 
