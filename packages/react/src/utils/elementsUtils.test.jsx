@@ -2,7 +2,7 @@ import { it, describe, expect, beforeEach, vi } from 'vitest';
 import { render, prettyDOM } from '@testing-library/react';
 import { v4 as uuidv4 } from 'uuid';
 import {
-    elementToJson,
+    elementsToJson,
     addIdsToElements,
     getAnimationList,
     iterateAnimation,
@@ -105,7 +105,7 @@ describe('addIdsToElements', () => {
 describe('iterateAnimation', () => {
     const animationToJson = (list) => list.map((el) => ({
         ...el,
-        element: elementToJson(el.element)
+        element: elementsToJson(el.element)
     }));
 
     it('should handle nested React elements correctly', () => {
@@ -389,19 +389,19 @@ describe('addElementsByPreference', () => {
     it('inserts characters at specified index in a simple string', () => {
         const nodes = "Hello, world!";
         const modified = addElementsByPreference(nodes, " test", 5);
-        expect(modified).toEqual(["Hello test, world!"]);
+        expect(modified).toEqual("Hello test, world!");
     });
 
     it('inserts characters at the start', () => {
         const nodes = "Hello";
         const modified = addElementsByPreference(nodes, " test", 0);
-        expect(modified).toEqual([" testHello"]);
+        expect(modified).toEqual(" testHello");
     });
 
     it('inserts characters at the end', () => {
         const nodes = "Hello";
         const modified = addElementsByPreference(nodes, " test", 5);
-        expect(modified).toEqual(["Hello test"]);
+        expect(modified).toEqual("Hello test");
     });
 
     // create a tests that handle nodes as an empty array
@@ -456,6 +456,7 @@ describe('addElementsByPreference', () => {
         const nodes = addIdsToElements(<span>Hello</span>);
         const { container } = render(addElementsByPreference(nodes, ", test", 5, "outerMost"));
         const [firstSpan, middleText] = container.childNodes;
+        console.log(prettyDOM(container));
         expect(firstSpan.textContent).toBe("Hello");
         expect(middleText.textContent).toBe(", test");
     });
@@ -467,6 +468,14 @@ describe('addElementsByPreference', () => {
         const [firstSpan, secondSpan] = container.childNodes;
         expect(firstSpan.textContent).toBe("Hello");
         expect(secondSpan.textContent).toBe(" world!");
+    });
+
+    it('handles nested structures correctly: outerMost 6: inserting arrays', () => {
+        const nodes = addIdsToElements(['Hello']);
+        const insertingNodes = addIdsToElements([' world!']);
+        const result = addElementsByPreference(nodes, insertingNodes, 5, "outerMost");
+        console.log(result);
+        expect(result).toEqual(['Hello', [' world!']]);
     });
 
     it('handles nested structures correctly: rightMost', () => {
@@ -510,7 +519,7 @@ describe('addElementsById', () => {
     it('should insert content into a string when input is a string and id is null', () => {
         const element = "Hello World";
         const updatedElement = addElementsById(element, null, ' Inserted', 5);
-        expect(updatedElement).toEqual(['Hello Inserted World']);
+        expect(updatedElement).toEqual('Hello Inserted World');
     });
 
     it('should insert content at the first text index when ID is null', () => {
