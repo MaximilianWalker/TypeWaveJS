@@ -5,7 +5,23 @@ const animation = [
     {
         type: 'type',
         value: 'Hello, World!'
-    }
+    },
+    {
+        type: 'delete',
+        value: 7,
+        instant: true
+    },
+    {
+        type: 'type',
+        value: 'Typewave!',
+        instant: true
+    },
+    {
+        type: 'move',
+        value: -5,
+        instant: true
+    },
+
 ];
 
 function Example() {

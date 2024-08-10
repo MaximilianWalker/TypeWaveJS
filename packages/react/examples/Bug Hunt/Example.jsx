@@ -28,7 +28,7 @@ function Example() {
     return (
         <div className='container'>
             <TypeWave
-                key={counter}
+                // key={counter}
                 className="hi"
                 typeSpeed={50}
                 deleteSpeed={50}
