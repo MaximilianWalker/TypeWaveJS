@@ -1,4 +1,4 @@
-import React, {
+import {
 	useState,
 	useEffect,
 	useRef,
@@ -24,7 +24,7 @@ import './typewave.css';
 const TypeWave = forwardRef(({
 	play = true,
 	events: eventsProp,
-	imediateEvents: imediateEventsProp,
+	priorityEvents: priorityEventsProp,
 	component: Component = 'span',
 	showCursor = true,
 	cursorCharacter: cursorCharacterProp = '|',
@@ -50,7 +50,10 @@ const TypeWave = forwardRef(({
 	// EVENTS
 	const [events, setEvents] = useState([]);
 	const [eventIndex, setEventIndex] = useState(0);
-	const currentEvent = useMemo(() => (events[eventIndex] ? { ...events[eventIndex] } : null), [events, eventIndex]);
+	const currentEvent = useMemo(
+		() => (events[eventIndex] ? { ...events[eventIndex] } : null),
+		[events, eventIndex]
+	);
 
 	// CURSOR
 	const cursor = (
@@ -61,9 +64,6 @@ const TypeWave = forwardRef(({
 
 	const onType = () => setElements((prevElements) => {
 		const { value, instant, animation } = currentEvent;
-		console.log(prevElements);
-		console.log(value);
-		console.log(addElementsByPreference(prevElements, value, cursorIndex !== 0 ? cursorIndex : null, 'outerMost'))
 		if (instant)
 			return addElementsByPreference(prevElements, value, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
 
@@ -71,6 +71,7 @@ const TypeWave = forwardRef(({
 
 		if (index < elements.length) {
 			const { element, parentId } = elements[index];
+			console.log(element)
 			if (parentId)
 				return addElementsById(prevElements, parentId, element, cursorIndex !== 0 ? cursorIndex : null);
 			else
@@ -169,7 +170,7 @@ const TypeWave = forwardRef(({
 			const { type, animation, instant, remove } = currentEvent;
 
 			if (remove) {
-				setEvents(prevEvents => prevEvents.filter((_, index) => index != eventIndex));
+				setEvents((prevEvents) => prevEvents.filter((_, index) => index != eventIndex));
 				return;
 			}
 
@@ -188,18 +189,18 @@ const TypeWave = forwardRef(({
 				setEventIndex(prevIndex => prevIndex + 1);
 
 			// INCREMENT ANIMATION INDEX
-			setEvents(prevEvents => prevEvents.map((event, i) => {
-				if (i === eventIndex) {
-					return {
-						...event,
-						animation: {
-							...event.animation,
-							index: index + 1
-						}
-					};
-				}
-				return event;
-			}));
+			// NOTE: WE MUST USE THE OUTER INDEX TO AVOID DOUBLED UPDATES DUE TO REACT STRICK MODE, IF WE USE THE INNER INDEX, THE INDEX WILL BE INCREMENTED TWICE
+			setEvents((prevEvents) => {
+				const newEvents = [...prevEvents];
+				newEvents[eventIndex] = {
+					...newEvents[eventIndex],
+					animation: {
+						...newEvents[eventIndex].animation,
+						index: index + 1
+					}
+				};
+				return newEvents;
+			});
 		}, animationSpeed);
 	};
 
@@ -228,6 +229,19 @@ const TypeWave = forwardRef(({
 		return () => cancelAnimation();
 	}, [play, currentEvent]);
 
+	useEffect(() => {
+		if (priorityEventsProp) {
+			setEvents((prevEvents) => {
+				console.log(prevEvents)
+				const newEvents = [...prevEvents];
+				const priorityEvents = processEvents(priorityEventsProp, true);
+				const priorityIndex = newEvents.findLastIndex(event => event.priority);
+				newEvents.splice(priorityIndex >= 0 ? priorityIndex + 1 : eventIndex, 0, ...priorityEvents);
+				return newEvents;
+			});
+		}
+	}, [priorityEventsProp]);
+
 	return (
 		<Component ref={ref} {...props}>
 			{
@@ -250,13 +264,14 @@ const eventShape = PropTypes.shape({
 	value: PropTypes.any,
 	delay: PropTypes.number,
 	instant: PropTypes.bool,
-	remove: PropTypes.bool
+	remove: PropTypes.bool,
+	priority: PropTypes.bool
 });
 
 TypeWave.propTypes = {
 	play: PropTypes.bool,
 	events: PropTypes.arrayOf(eventShape).isRequired,
-	imediateEvents: PropTypes.arrayOf(eventShape),
+	priorityEvents: PropTypes.arrayOf(eventShape),
 	component: PropTypes.elementType,
 	showCursor: PropTypes.bool,
 	cursorCharacter: PropTypes.string,

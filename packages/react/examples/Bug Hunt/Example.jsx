@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TypeWave } from '@typewavejs/react';
 import './Example.css';
 
