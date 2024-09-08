@@ -53,7 +53,14 @@ export function addIdsToElements(elements) {
         });
     };
 
-    return Array.isArray(elements) ? Children.map(elements, _addIdsToElements) : _addIdsToElements(elements);
+    const result = Array.isArray(elements) ? Children.map(elements, _addIdsToElements) : _addIdsToElements(elements);
+    if (!Array.isArray(elements)) {
+        if (result.length === 1)
+            return result[0];
+        else if (result.length === 0)
+            return null;
+    }
+    return result;
 }
 
 export function convertFragmentsToArrays(elements) {
@@ -66,7 +73,6 @@ export function convertFragmentsToArrays(elements) {
     return _convertFragmentsToArrays(elements);
 }
 
-// modify to add child index too, normal index will be renamed to iteration index
 export function* iterateElements(elements, method = 'depth') {
     if (method !== 'depth' && method !== 'breadth')
         throw new Error('Method must be depth or breadth');
@@ -115,23 +121,6 @@ export function* iterateElements(elements, method = 'depth') {
 
 export function getElementsList(elements, method = 'depth') {
     return Array.from(iterateElements(elements, method));
-}
-
-export function generateElements(entries) {
-    const recreate = (element) => {
-        if (!isValidElement(element))
-            return element;
-
-        const newChildren = Children.map(element.props.children, child => recreate(child));
-
-        return cloneElement(
-            element,
-            { ...element.props },
-            newChildrenGenerator(element, newChildren)
-        );
-    };
-
-    return Children.map(elements, element => recreate(element));
 }
 
 export function* iterateText(elements) {
@@ -220,7 +209,14 @@ export function generateLineBreaks(elements) {
         return element;
     });
 
-    return _generateLineBreaks(elements);
+    const result = _generateLineBreaks(elements);
+    if (!Array.isArray(elements)) {
+        if (result.length === 1)
+            return result[0];
+        else if (result.length === 0)
+            return null;
+    }
+    return result;
 }
 
 export function countCharacters(elements) {
@@ -369,9 +365,13 @@ const shouldInsertById = ({ currentElement, parent, id, textIndex, currentTextIn
 //     return _addElementsById(tree);
 // }
 
+// TO DO: WE ARE NOT TAKING ARRAY INTO ACCOUNT
 export function addElements(elements, content, textIndex, shouldInsert) {
     if (Array.isArray(elements) && elements.length === 0)
         return [content];
+
+    if(isValidElement(elements))
+        elements = [elements];
 
     const totalLength = countCharacters(elements);
     let contentLength = countCharacters(content);
@@ -411,7 +411,7 @@ export function addElements(elements, content, textIndex, shouldInsert) {
 
                     if (typeof content === 'string') {
                         newElements.push(`${firstSlice}${content}${lastSlice}`);
-                    } else if (isValidElement(content)) {
+                    } else if (isValidElement(content) || Array.isArray(content)) {
                         if (firstSlice) newElements.push(firstSlice);
                         newElements.push(content);
                         if (lastSlice) newElements.push(lastSlice);
@@ -452,7 +452,14 @@ export function addElements(elements, content, textIndex, shouldInsert) {
         return newElements;
     };
 
-    return _addElements(elements);
+    const result = _addElements(elements);
+    if (!Array.isArray(elements)) {
+        if (result.length === 1)
+            return result[0];
+        else if (result.length === 0)
+            return null;
+    }
+    return result;
 }
 
 export function addElementsById(elements, id, content, index = 0) {
@@ -503,7 +510,14 @@ export function removeElements(elements, startIndex, endIndex = null, removeEmpt
         return child;
     });
 
-    return _removeElements(elements);
+    const result = _removeElements(elements);
+    if (!Array.isArray(elements)) {
+        if (result.length === 1)
+            return result[0];
+        else if (result.length === 0)
+            return null;
+    }
+    return result;
 }
 
 // review

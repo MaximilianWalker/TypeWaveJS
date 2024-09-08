@@ -16,8 +16,14 @@ export const EVENT_TYPES = [
     'options'
 ];
 
-export function processEvent(event) {
-    const { type, value, instant } = event;
+export function processEvent(event, priority = false) {
+    const { type, value, instant, remove } = event;
+    event = {
+        ...event,
+        priority,
+        remove: remove != null ? remove : priority
+    };
+
     if (type === 'type') {
         let newElements = generateLineBreaks(value);
         newElements = convertFragmentsToArrays(newElements);
@@ -45,8 +51,8 @@ export function processEvent(event) {
     return event;
 }
 
-export function processEvents(events) {
-    return events.map(processEvent);
+export function processEvents(events, priority = false) {
+    return events.map((event) => processEvent(event, priority));
 }
 
 export function resetEvent(event) {

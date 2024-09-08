@@ -18,51 +18,87 @@ a {
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
 
 body {
   margin: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+}
+
+#root {
+  width: inherit;
+  height: inherit;
+}
+
+.main {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  flex-direction: row;
+  width: inherit;
+  height: inherit;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.sidebar {
+  width: 250px;
+  border-radius: 20px;
+  background-color: #191919;
+  color: white;
+  margin: 20px;
+  padding: 20px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+.sidebar .tabs {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .tabs .tab {
+  padding: 15px 20px;
+  margin: 10px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: border-color 0.25s;
+  text-align: start;
+  background-color: transparent;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color 0.25s, background-color 0.25s;
+  font-size: 20px;
 }
-button:hover {
-  border-color: #646cff;
+
+.sidebar .tab:hover {
+  background-color: #333333;
+  border-color: #ffffff;
 }
-button:focus,
-button:focus-visible {
+
+.sidebar .tab:focus,
+.sidebar .tab:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.container {
+  flex: 1;
+  display: flex;
+}
+
+.content {
+  width: max-content;
+  height: max-content;
+  margin: auto;
 }

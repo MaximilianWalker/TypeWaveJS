@@ -1,10 +1,32 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TypeWave } from '../../src';
 
 const animation = [
     {
         type: 'type',
-        value: 'Hello, World!'
+        value: 'Hello, '
+    },
+    {
+        type: 'type',
+        value: 'World!'
+    },
+    {
+        type: 'delete',
+        value: 6,
+    },
+    {
+        type: 'type',
+        value: 'Typewave!',
+        remove: true
+    },
+    {
+        type: 'delete',
+        value: 9,
+        remove: true
+    },
+    {
+        type: 'loop',
+        value: 1
     }
 ];
 
@@ -12,15 +34,11 @@ function Example() {
     const [events, setEvents] = useState(animation);
 
     return (
-        <div>
-            <h1>Typewave.js React Example</h1>
-            <h1>Basic</h1>
-            <TypeWave
-                component="h1"
-                events={events}
-                cursorCharacter="_"
-            />
-        </div>
+        <TypeWave
+            component="h1"
+            events={events}
+            cursorCharacter="_"
+        />
     );
 }
 

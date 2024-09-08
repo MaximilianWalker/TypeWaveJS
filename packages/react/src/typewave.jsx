@@ -1,16 +1,14 @@
-import React, {
+import {
 	useState,
 	useEffect,
 	useRef,
 	useMemo,
-	useImperativeHandle,
 	forwardRef,
 	memo
 } from 'react';
 import PropTypes from 'prop-types';
-// import usePrevious from './hooks/usePrevious';
+import { v4 as uuidv4 } from 'uuid';
 import {
-	processEvent,
 	processEvents,
 	resetEvents,
 	EVENT_TYPES
@@ -19,14 +17,14 @@ import {
 	countCharacters,
 	addElementsById,
 	addElementsByPreference,
-	removeElements,
-	// removeElement,
+	removeElements
 } from './utils/elementsUtils';
 import './typewave.css';
 
 const TypeWave = forwardRef(({
 	play = true,
 	events: eventsProp,
+	priorityEvents: priorityEventsProp,
 	component: Component = 'span',
 	showCursor = true,
 	cursorCharacter: cursorCharacterProp = '|',
@@ -34,6 +32,7 @@ const TypeWave = forwardRef(({
 	moveSpeed: moveSpeedProp = 250,
 	deleteSpeed: deleteSpeedProp = 250,
 	onEvent,
+	onAnimation: onAnimationProp,
 	...props
 }, ref) => {
 	const intervalRef = useRef();
@@ -44,48 +43,30 @@ const TypeWave = forwardRef(({
 	const [moveSpeed, setMoveSpeed] = useState(moveSpeedProp);
 	const [deleteSpeed, setDeleteSpeed] = useState(deleteSpeedProp);
 
-	const cursor = useMemo(() => (
-		<span id="cursor" key="cursor" className="typewave__cursor">
-			{cursorCharacter}
-		</span>
-	), [cursorCharacter]);
-
 	// ELEMENTS
 	const [elements, setElements] = useState([]);
 	const [cursorIndex, setCursorIndex] = useState(0);
 	const elementsSize = useMemo(() => countCharacters(elements), [elements]);
-	const processedElements = useMemo(() => (
-		showCursor ?
-			addElementsByPreference(
-				elements,
-				cursor,
-				cursorIndex !== 0 ? cursorIndex : null,
-				'outerMost'
-			)
-			:
-			elements
-	), [elements, cursorIndex, showCursor, cursorCharacter]);
 
 	// EVENTS
 	const [events, setEvents] = useState([]);
 	const [eventIndex, setEventIndex] = useState(0);
-	const currentEvent = useMemo(() => (events[eventIndex] ? { ...events[eventIndex] } : null), [events, eventIndex]);
+	const currentEvent = useMemo(
+		() => (events[eventIndex] ? { ...events[eventIndex] } : null),
+		[events, eventIndex]
+	);
 
-	const addEvent = (event) => setEvents(prevEvents => [
-		...prevEvents,
-		processEvent(event)
-	]);
-
-	const addImmediateEvent = (event) => setEvents(prevEvents => {
-		const newEvents = [...prevEvents];
-		newEvents.splice(eventIndex, event);
-		return newEvents;
-	});
+	// CURSOR
+	const cursor = (
+		<span id="cursor" key={uuidv4()} className="typewave__cursor">
+			{cursorCharacter}
+		</span>
+	);
 
 	const onType = () => setElements((prevElements) => {
 		const { value, instant, animation } = currentEvent;
 		if (instant)
-			return addElementsByPreference(prevElements, value, cursorIndex, 'outerMost');
+			return addElementsByPreference(prevElements, value, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
 
 		const { index, elements } = animation;
 
@@ -95,8 +76,6 @@ const TypeWave = forwardRef(({
 				return addElementsById(prevElements, parentId, element, cursorIndex !== 0 ? cursorIndex : null);
 			else
 				return addElementsByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
-
-			// return addElementsByPreference(prevElements, element, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
 		}
 		return prevElements;
 	});
@@ -120,15 +99,19 @@ const TypeWave = forwardRef(({
 		return newIndex;
 	});
 
-	const onDelete = () => setElements((prevElements) => removeElements(
-		prevElements,
-		elementsSize + cursorIndex - 1,
-		elementsSize + cursorIndex
-	));
+	const onDelete = () => setElements((prevElements) => {
+		const { value, instant } = currentEvent;
+
+		return removeElements(
+			prevElements,
+			elementsSize + cursorIndex - (instant ? value : 1),
+			elementsSize + cursorIndex
+		);
+	});
 
 	const onLoop = () => {
 		setEvents(prevEvents => resetEvents(prevEvents));
-		setEventIndex((currentEvent.value ?? 0) - 1);
+		setEventIndex(currentEvent.value ?? 0);
 	};
 
 	const onOptions = () => {
@@ -139,77 +122,88 @@ const TypeWave = forwardRef(({
 		if (deleteSpeed) setDeleteSpeed(deleteSpeed);
 	};
 
-	const onAnimation = () => {
-		let animationFunction;
-		let animationSpeed;
-		switch (currentEvent.type) {
+	const getAnimationFunction = (type) => {
+		switch (type) {
 			case 'type':
-				animationFunction = onType;
-				animationSpeed = currentEvent.delay ?? typeSpeed;
-				break;
+				return {
+					function: onType,
+					speed: currentEvent.delay ?? typeSpeed
+				};
 			case 'move':
-				animationFunction = onMove;
-				animationSpeed = currentEvent.delay ?? moveSpeed;
-				break;
+				return {
+					function: onMove,
+					speed: currentEvent.delay ?? moveSpeed
+				};
 			case 'delete':
-				animationFunction = onDelete;
-				animationSpeed = currentEvent.delay ?? deleteSpeed;
-				break;
+				return {
+					function: onDelete,
+					speed: currentEvent.delay ?? deleteSpeed
+				};
 			case 'pause':
-				animationFunction = null;
-				animationSpeed = currentEvent.value;
-				break;
+				return {
+					function: null,
+					speed: currentEvent.value
+				};
 			case 'loop':
-				animationFunction = onLoop;
-				animationSpeed = 0;
-				break;
+				return {
+					function: onLoop,
+					speed: 0
+				};
 			case 'options':
-				animationFunction = onOptions;
-				animationSpeed = 0;
-				break;
+				return {
+					function: onOptions,
+					speed: 0
+				};
 		}
+	};
+
+	const onAnimation = () => {
+		const {
+			function: animationFunction,
+			speed: animationSpeed
+		} = getAnimationFunction(currentEvent.type);
 
 		intervalRef.current = setTimeout(() => {
 			if (animationFunction) animationFunction();
-			if (onEvent) onEvent(currentEvent, eventIndex);
+			
+			const { type, animation, remove } = currentEvent;
+			const { index, size } = animation ?? {};
 
-			const { type, animation, instant, remove } = currentEvent;
+			if(type === 'loop') return;
 
-			if (instant) {
-				setEventIndex(prevIndex => prevIndex + 1);
-				return;
-			}
-
-			if (remove) {
-				setEvents(prevEvents => prevEvents.filter((_, index) => index != eventIndex));
+			if (remove && (!animation || index >= size - 1)) {
+				setEvents((prevEvents) => prevEvents.filter((_, index) => index != eventIndex));
 				return;
 			}
 
 			if (!animation) {
-				setEventIndex(prevIndex => prevIndex + 1);
+				setEventIndex(eventIndex + 1);
 				return;
 			}
 
-			const { index, size } = animation;
+			// INCREMENT ANIMATION INDEX
+			// NOTE: WE MUST USE THE OUTER INDEX TO AVOID DOUBLED UPDATES DUE TO REACT STRICK MODE, IF WE USE THE INNER INDEX, THE INDEX WILL BE INCREMENTED TWICE
+			// NOTE 2: WE CAN'T USE THE OUTER EVENTS (UNLIKE THE OUTER INDEX) BECAUSE IMMEDIATE EVENTS MAY BE ADDED TO THE EVENTS ARRAY (OR OTHER MODIFICATIONS)
+			setEvents((prevEvents) => {
+				const newEvents = [...prevEvents];
+				newEvents[eventIndex] = {
+					...newEvents[eventIndex],
+					animation: {
+						...newEvents[eventIndex].animation,
+						index: index + 1
+					}
+				};
+				return newEvents;
+			});
 
+			// AFTER UPDATING ANIMATION INDEX, WE NEED CHECK IF THE ANIMATION IS FINISHED TO MOVE TO THE NEXT EVENT
+			// NOTE: IF THE TYPE IS DELETE, IF THERE IS NO SIZE, THEN ALL ELEMENTS WILL BE DELETED
 			if (
-				(type === 'delete' && !size && elementsSize === 1) ||
+				(type === 'delete' && !size && elementsSize === 0) ||
 				(size && index >= size - 1)
-			)
-				setEventIndex(prevIndex => prevIndex + 1);
-
-			setEvents(prevEvents => prevEvents.map((event, i) => {
-				if (i === eventIndex) {
-					return {
-						...event,
-						animation: {
-							...event.animation,
-							index: index + 1
-						}
-					};
-				}
-				return event;
-			}));
+			) {
+				setEventIndex(eventIndex + 1);
+			}
 		}, animationSpeed);
 	};
 
@@ -220,7 +214,6 @@ const TypeWave = forwardRef(({
 		}
 	};
 
-	// bug where the animation is canceled after it starts
 	useEffect(() => {
 		setEvents(processEvents(eventsProp));
 		return () => {
@@ -239,24 +232,53 @@ const TypeWave = forwardRef(({
 		return () => cancelAnimation();
 	}, [play, currentEvent]);
 
+	useEffect(() => {
+		if (priorityEventsProp) {
+			// this  set event is not synchronous with the onAnimation setEvents
+			setEvents((prevEvents) => {
+				const newEvents = [...prevEvents];
+				const priorityEvents = processEvents(priorityEventsProp, true);
+				const priorityIndex = newEvents.findLastIndex(event => event.priority);
+				newEvents.splice(priorityIndex >= 0 ? priorityIndex + 1 : eventIndex, 0, ...priorityEvents);
+				return newEvents;
+			});
+		}
+	}, [priorityEventsProp]);
+
+	useEffect(() => onEvent?.(eventsProp[eventIndex], eventIndex), [eventIndex, onEvent]);
+
+	useEffect(() => onAnimationProp?.(currentEvent, eventIndex), [currentEvent, onAnimationProp]);
+
 	return (
 		<Component ref={ref} {...props}>
-			{processedElements}
+			{
+				showCursor ?
+					addElementsByPreference(
+						elements,
+						cursor,
+						cursorIndex !== 0 ? cursorIndex : null,
+						'outerMost'
+					)
+					:
+					elements
+			}
 		</Component>
 	);
 });
 
+const eventShape = PropTypes.shape({
+	type: PropTypes.oneOf(EVENT_TYPES).isRequired,
+	value: PropTypes.any,
+	delay: PropTypes.number,
+	instant: PropTypes.bool,
+	remove: PropTypes.bool,
+	priority: PropTypes.bool
+});
+
 TypeWave.propTypes = {
 	play: PropTypes.bool,
-	events: PropTypes.arrayOf(
-		PropTypes.shape({
-			type: PropTypes.oneOf(EVENT_TYPES).isRequired,
-			value: PropTypes.any,
-			delay: PropTypes.number,
-			instant: PropTypes.bool,
-			remove: PropTypes.bool
-		})
-	).isRequired,
+	events: PropTypes.arrayOf(eventShape).isRequired,
+	priorityEvents: PropTypes.arrayOf(eventShape),
 	component: PropTypes.elementType,
 	showCursor: PropTypes.bool,
 	cursorCharacter: PropTypes.string,
