@@ -4,7 +4,29 @@ import { TypeWave } from '../../src';
 const animation = [
     {
         type: 'type',
-        value: 'Hello, World!'
+        value: 'Hello, '
+    },
+    {
+        type: 'type',
+        value: 'World!'
+    },
+    {
+        type: 'delete',
+        value: 6,
+    },
+    {
+        type: 'type',
+        value: 'Typewave!',
+        remove: true
+    },
+    {
+        type: 'delete',
+        value: 9,
+        remove: true
+    },
+    {
+        type: 'loop',
+        value: 1
     }
 ];
 

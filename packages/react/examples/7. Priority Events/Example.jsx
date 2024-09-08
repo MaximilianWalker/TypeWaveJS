@@ -4,7 +4,7 @@ import { TypeWave } from '../../src';
 const events = [
     {
         type: 'type',
-        value: 'This is a super long text that will be interrupted by a priority event.'
+        value: 'Primary event!'
     }
 ];
 
@@ -26,7 +26,6 @@ function Example() {
     const [priorityEvents, setPriorityEvents] = useState();
 
     useEffect(() => {
-        console.log('kek')
         setTimeout(() => {
             setPriorityEvents(priorityEvents1);
         }, 2000);

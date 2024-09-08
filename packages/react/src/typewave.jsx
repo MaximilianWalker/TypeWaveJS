@@ -32,6 +32,7 @@ const TypeWave = forwardRef(({
 	moveSpeed: moveSpeedProp = 250,
 	deleteSpeed: deleteSpeedProp = 250,
 	onEvent,
+	onAnimation: onAnimationProp,
 	...props
 }, ref) => {
 	const intervalRef = useRef();
@@ -71,7 +72,6 @@ const TypeWave = forwardRef(({
 
 		if (index < elements.length) {
 			const { element, parentId } = elements[index];
-			console.log(element)
 			if (parentId)
 				return addElementsById(prevElements, parentId, element, cursorIndex !== 0 ? cursorIndex : null);
 			else
@@ -111,7 +111,7 @@ const TypeWave = forwardRef(({
 
 	const onLoop = () => {
 		setEvents(prevEvents => resetEvents(prevEvents));
-		setEventIndex((currentEvent.value ?? 0) - 1);
+		setEventIndex(currentEvent.value ?? 0);
 	};
 
 	const onOptions = () => {
@@ -165,31 +165,25 @@ const TypeWave = forwardRef(({
 
 		intervalRef.current = setTimeout(() => {
 			if (animationFunction) animationFunction();
-			if (onEvent) onEvent(currentEvent, eventIndex);
+			
+			const { type, animation, remove } = currentEvent;
+			const { index, size } = animation ?? {};
 
-			const { type, animation, instant, remove } = currentEvent;
+			if(type === 'loop') return;
 
-			if (remove) {
+			if (remove && (!animation || index >= size - 1)) {
 				setEvents((prevEvents) => prevEvents.filter((_, index) => index != eventIndex));
 				return;
 			}
 
-			if (instant || !animation) {
-				setEventIndex(prevIndex => prevIndex + 1);
+			if (!animation) {
+				setEventIndex(eventIndex + 1);
 				return;
 			}
 
-			const { index, size } = animation;
-
-			// CHECK IF ANIMATION IS FINISHED
-			if (
-				(type === 'delete' && !size && elementsSize === 1) ||
-				(size && index >= size - 1)
-			)
-				setEventIndex(prevIndex => prevIndex + 1);
-
 			// INCREMENT ANIMATION INDEX
 			// NOTE: WE MUST USE THE OUTER INDEX TO AVOID DOUBLED UPDATES DUE TO REACT STRICK MODE, IF WE USE THE INNER INDEX, THE INDEX WILL BE INCREMENTED TWICE
+			// NOTE 2: WE CAN'T USE THE OUTER EVENTS (UNLIKE THE OUTER INDEX) BECAUSE IMMEDIATE EVENTS MAY BE ADDED TO THE EVENTS ARRAY (OR OTHER MODIFICATIONS)
 			setEvents((prevEvents) => {
 				const newEvents = [...prevEvents];
 				newEvents[eventIndex] = {
@@ -201,6 +195,15 @@ const TypeWave = forwardRef(({
 				};
 				return newEvents;
 			});
+
+			// AFTER UPDATING ANIMATION INDEX, WE NEED CHECK IF THE ANIMATION IS FINISHED TO MOVE TO THE NEXT EVENT
+			// NOTE: IF THE TYPE IS DELETE, IF THERE IS NO SIZE, THEN ALL ELEMENTS WILL BE DELETED
+			if (
+				(type === 'delete' && !size && elementsSize === 0) ||
+				(size && index >= size - 1)
+			) {
+				setEventIndex(eventIndex + 1);
+			}
 		}, animationSpeed);
 	};
 
@@ -231,8 +234,8 @@ const TypeWave = forwardRef(({
 
 	useEffect(() => {
 		if (priorityEventsProp) {
+			// this  set event is not synchronous with the onAnimation setEvents
 			setEvents((prevEvents) => {
-				console.log(prevEvents)
 				const newEvents = [...prevEvents];
 				const priorityEvents = processEvents(priorityEventsProp, true);
 				const priorityIndex = newEvents.findLastIndex(event => event.priority);
@@ -241,6 +244,10 @@ const TypeWave = forwardRef(({
 			});
 		}
 	}, [priorityEventsProp]);
+
+	useEffect(() => onEvent?.(eventsProp[eventIndex], eventIndex), [eventIndex, onEvent]);
+
+	useEffect(() => onAnimationProp?.(currentEvent, eventIndex), [currentEvent, onAnimationProp]);
 
 	return (
 		<Component ref={ref} {...props}>
