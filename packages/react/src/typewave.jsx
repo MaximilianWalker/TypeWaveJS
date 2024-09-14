@@ -31,8 +31,9 @@ const TypeWave = forwardRef(({
 	typeSpeed: typeSpeedProp = 250,
 	moveSpeed: moveSpeedProp = 250,
 	deleteSpeed: deleteSpeedProp = 250,
-	onEvent,
+	onEvent: onEventProp,
 	onAnimation: onAnimationProp,
+	onEnd: onEndProp,
 	...props
 }, ref) => {
 	const intervalRef = useRef();
@@ -165,11 +166,11 @@ const TypeWave = forwardRef(({
 
 		intervalRef.current = setTimeout(() => {
 			if (animationFunction) animationFunction();
-			
+
 			const { type, animation, remove } = currentEvent;
 			const { index, size } = animation ?? {};
 
-			if(type === 'loop') return;
+			if (type === 'loop') return;
 
 			if (remove && (!animation || index >= size - 1)) {
 				setEvents((prevEvents) => prevEvents.filter((_, index) => index != eventIndex));
@@ -215,12 +216,10 @@ const TypeWave = forwardRef(({
 	};
 
 	useEffect(() => {
+		setElements([]);
+		setEventIndex(0);
 		setEvents(processEvents(eventsProp));
-		return () => {
-			cancelAnimation();
-			setEventIndex(0);
-			setElements([]);
-		};
+		return cancelAnimation;
 	}, [eventsProp]);
 
 	useEffect(() => {
@@ -229,8 +228,15 @@ const TypeWave = forwardRef(({
 		else if (!play && intervalRef.current)
 			cancelAnimation();
 
-		return () => cancelAnimation();
+		return cancelAnimation;
 	}, [play, currentEvent]);
+
+	useEffect(() => {
+		if (onEventProp && currentEvent)
+			onEventProp(currentEvent, eventIndex);
+		if (onEndProp && !currentEvent)
+			onEndProp();
+	}, [currentEvent, onEventProp, onEndProp]);
 
 	useEffect(() => {
 		if (priorityEventsProp) {
@@ -245,6 +251,7 @@ const TypeWave = forwardRef(({
 		}
 	}, [priorityEventsProp]);
 
+	//ON DEVELOPMENT
 	useEffect(() => onEvent?.(eventsProp[eventIndex], eventIndex), [eventIndex, onEvent]);
 
 	useEffect(() => onAnimationProp?.(currentEvent, eventIndex), [currentEvent, onAnimationProp]);
@@ -285,7 +292,9 @@ TypeWave.propTypes = {
 	typeSpeed: PropTypes.number,
 	moveSpeed: PropTypes.number,
 	deleteSpeed: PropTypes.number,
-	onEvent: PropTypes.func
+	onEvent: PropTypes.func,
+	onAnimation: PropTypes.func,
+	onEnd: PropTypes.func,
 };
 
 export default memo(TypeWave);
