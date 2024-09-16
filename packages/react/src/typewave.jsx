@@ -251,11 +251,6 @@ const TypeWave = forwardRef(({
 		}
 	}, [priorityEventsProp]);
 
-	//ON DEVELOPMENT
-	useEffect(() => onEvent?.(eventsProp[eventIndex], eventIndex), [eventIndex, onEvent]);
-
-	useEffect(() => onAnimationProp?.(currentEvent, eventIndex), [currentEvent, onAnimationProp]);
-
 	return (
 		<Component ref={ref} {...props}>
 			{
