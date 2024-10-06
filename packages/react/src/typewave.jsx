@@ -38,6 +38,8 @@ const TypeWave = forwardRef(({
 }, ref) => {
 	const intervalRef = useRef();
 
+	const [initialized, setInitialized] = useState(false);
+
 	// OPTIONS
 	const [cursorCharacter, setCursorCharacter] = useState(cursorCharacterProp);
 	const [typeSpeed, setTypeSpeed] = useState(typeSpeedProp);
@@ -216,6 +218,7 @@ const TypeWave = forwardRef(({
 	};
 
 	useEffect(() => {
+		setInitialized(true);
 		setElements([]);
 		setEventIndex(0);
 		setEvents(processEvents(eventsProp));
@@ -232,23 +235,24 @@ const TypeWave = forwardRef(({
 	}, [play, currentEvent]);
 
 	useEffect(() => {
-		if (onEventProp && currentEvent)
+		if (!initialized) return;
+
+		if (onEventProp && currentEvent && (!currentEvent.animation || currentEvent.animation.index === 0))
 			onEventProp(currentEvent, eventIndex);
-		if (onEndProp && !currentEvent)
+		if (onEndProp && eventIndex === events.length)
 			onEndProp();
 	}, [currentEvent, onEventProp, onEndProp]);
 
 	useEffect(() => {
-		if (priorityEventsProp) {
-			// this  set event is not synchronous with the onAnimation setEvents
-			setEvents((prevEvents) => {
-				const newEvents = [...prevEvents];
-				const priorityEvents = processEvents(priorityEventsProp, true);
-				const priorityIndex = newEvents.findLastIndex(event => event.priority);
-				newEvents.splice(priorityIndex >= 0 ? priorityIndex + 1 : eventIndex, 0, ...priorityEvents);
-				return newEvents;
-			});
-		}
+		if (!priorityEventsProp) return;
+
+		setEvents((prevEvents) => {
+			const newEvents = [...prevEvents];
+			const priorityEvents = processEvents(priorityEventsProp, true);
+			const priorityIndex = newEvents.findLastIndex(event => event.priority);
+			newEvents.splice(priorityIndex >= 0 ? priorityIndex + 1 : eventIndex, 0, ...priorityEvents);
+			return newEvents;
+		});
 	}, [priorityEventsProp]);
 
 	return (
