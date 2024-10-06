@@ -1,45 +1,60 @@
-import { useEffect, useState } from 'react';
 import { TypeWave } from '../../src';
 
 const events = [
     {
         type: 'type',
-        value: 'Primary event!'
-    }
-];
-
-const priorityEvents1 = [
+        value: 'Hello, World!'
+    },
+    {
+        type: 'pause',
+        value: 1000
+    },
+    {
+        type: 'delete',
+        value: 6
+    },
     {
         type: 'type',
-        value: ' ... This is a priority event! ... '
-    }
-];
-
-const priorityEvents2 = [
+        value: 'TypeWave!'
+    },
+    {
+        type: 'pause',
+        value: 500
+    },
+    {
+        type: 'move',
+        value: -5
+    },
     {
         type: 'type',
-        value: ' ... This is another priority event! ... '
+        value: ' amazing'
+    },
+    {
+        type: 'pause',
+        value: 1000
+    },
+    {
+        type: 'loop',
+        value: 0
     }
 ];
 
 function Example() {
-    const [priorityEvents, setPriorityEvents] = useState();
+    const handleOnEvent = (currentEvent, eventIndex) => {
+        console.log('onEvent:', currentEvent, 'Event Index:', eventIndex);
+    };
 
-    useEffect(() => {
-        setTimeout(() => {
-            setPriorityEvents(priorityEvents1);
-        }, 2000);
-        setTimeout(() => {
-            setPriorityEvents(priorityEvents2);
-        }, 2500);
-    }, []);
+    const handleOnEnd = () => {
+        console.log('Animation has ended.');
+    };
 
     return (
         <TypeWave
             component="h1"
             events={events}
             cursorCharacter="_"
-            priorityEvents={priorityEvents}
+            onEvent={handleOnEvent}
+            onEnd={handleOnEnd}
         />
     );
 }

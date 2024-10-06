@@ -44,9 +44,9 @@ npm install @typewavejs/react
 Here is an example demonstrating how to use the `TypeWave JS` library:
 
 ```jsx
-import { TypeWave } from 'TypeWaveJS';
+import { TypeWave } from '@typewavejs/react';
 
-<TypeWaveJS
+<TypeWave
   play={true}
   events={[
     {

@@ -31,11 +31,14 @@ const TypeWave = forwardRef(({
 	typeSpeed: typeSpeedProp = 250,
 	moveSpeed: moveSpeedProp = 250,
 	deleteSpeed: deleteSpeedProp = 250,
-	onEvent,
+	onEvent: onEventProp,
 	onAnimation: onAnimationProp,
+	onEnd: onEndProp,
 	...props
 }, ref) => {
 	const intervalRef = useRef();
+
+	const [initialized, setInitialized] = useState(false);
 
 	// OPTIONS
 	const [cursorCharacter, setCursorCharacter] = useState(cursorCharacterProp);
@@ -165,11 +168,11 @@ const TypeWave = forwardRef(({
 
 		intervalRef.current = setTimeout(() => {
 			if (animationFunction) animationFunction();
-			
+
 			const { type, animation, remove } = currentEvent;
 			const { index, size } = animation ?? {};
 
-			if(type === 'loop') return;
+			if (type === 'loop') return;
 
 			if (remove && (!animation || index >= size - 1)) {
 				setEvents((prevEvents) => prevEvents.filter((_, index) => index != eventIndex));
@@ -215,12 +218,11 @@ const TypeWave = forwardRef(({
 	};
 
 	useEffect(() => {
+		setInitialized(true);
+		setElements([]);
+		setEventIndex(0);
 		setEvents(processEvents(eventsProp));
-		return () => {
-			cancelAnimation();
-			setEventIndex(0);
-			setElements([]);
-		};
+		return cancelAnimation;
 	}, [eventsProp]);
 
 	useEffect(() => {
@@ -229,25 +231,29 @@ const TypeWave = forwardRef(({
 		else if (!play && intervalRef.current)
 			cancelAnimation();
 
-		return () => cancelAnimation();
+		return cancelAnimation;
 	}, [play, currentEvent]);
 
 	useEffect(() => {
-		if (priorityEventsProp) {
-			// this  set event is not synchronous with the onAnimation setEvents
-			setEvents((prevEvents) => {
-				const newEvents = [...prevEvents];
-				const priorityEvents = processEvents(priorityEventsProp, true);
-				const priorityIndex = newEvents.findLastIndex(event => event.priority);
-				newEvents.splice(priorityIndex >= 0 ? priorityIndex + 1 : eventIndex, 0, ...priorityEvents);
-				return newEvents;
-			});
-		}
+		if (!initialized) return;
+
+		if (onEventProp && currentEvent && (!currentEvent.animation || currentEvent.animation.index === 0))
+			onEventProp(currentEvent, eventIndex);
+		if (onEndProp && eventIndex === events.length)
+			onEndProp();
+	}, [currentEvent, onEventProp, onEndProp]);
+
+	useEffect(() => {
+		if (!priorityEventsProp) return;
+
+		setEvents((prevEvents) => {
+			const newEvents = [...prevEvents];
+			const priorityEvents = processEvents(priorityEventsProp, true);
+			const priorityIndex = newEvents.findLastIndex(event => event.priority);
+			newEvents.splice(priorityIndex >= 0 ? priorityIndex + 1 : eventIndex, 0, ...priorityEvents);
+			return newEvents;
+		});
 	}, [priorityEventsProp]);
-
-	useEffect(() => onEvent?.(eventsProp[eventIndex], eventIndex), [eventIndex, onEvent]);
-
-	useEffect(() => onAnimationProp?.(currentEvent, eventIndex), [currentEvent, onAnimationProp]);
 
 	return (
 		<Component ref={ref} {...props}>
@@ -285,7 +291,9 @@ TypeWave.propTypes = {
 	typeSpeed: PropTypes.number,
 	moveSpeed: PropTypes.number,
 	deleteSpeed: PropTypes.number,
-	onEvent: PropTypes.func
+	onEvent: PropTypes.func,
+	onAnimation: PropTypes.func,
+	onEnd: PropTypes.func,
 };
 
 export default memo(TypeWave);
