@@ -225,6 +225,8 @@ export function countCharacters(elements) {
     const _countCharacters = (elements) => Children.forEach(elements, (child) => {
         if (typeof child === 'string')
             _count += child.length;
+        else if (isValidElement(child) && child.type === 'br')
+            _count += 1;
         else if (isValidElement(child) && child.props.children)
             _countCharacters(child.props.children);
     });
@@ -256,27 +258,27 @@ export function findElementAtIndex(parentNode, index) {
     return _node;
 }
 
-const shouldInsertLeftMost = ({ currentElement, textIndex, currentTextIndex }) => (
+const shouldInsertLeftMost = ({ currentElement, insertingTextIndex, currentTextIndex }) => (
     typeof currentElement === 'string' &&
-    ((textIndex === 0 && currentTextIndex === 0) || textIndex > currentTextIndex) &&
-    textIndex <= currentTextIndex + currentElement.length
+    ((insertingTextIndex === 0 && currentTextIndex === 0) || insertingTextIndex > currentTextIndex) &&
+    insertingTextIndex <= currentTextIndex + currentElement.length
 );
 
-const shouldInsertRightMost = ({ currentElement, textIndex, currentTextIndex, totalLength }) => (
+const shouldInsertRightMost = ({ currentElement, insertingTextIndex, currentTextIndex, totalLength }) => (
     typeof currentElement === 'string' &&
-    textIndex >= currentTextIndex &&
-    ((textIndex === totalLength && currentTextIndex + currentElement.length === totalLength) || textIndex < currentTextIndex + currentElement.length)
+    insertingTextIndex >= currentTextIndex &&
+    ((insertingTextIndex === totalLength && currentTextIndex + currentElement.length === totalLength) || insertingTextIndex < currentTextIndex + currentElement.length)
 );
 
-const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, textIndex, currentTextIndex, depth, position, contentLength }) => (
+const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, insertingTextIndex, currentTextIndex, depth, position, contentLength }) => (
     (
         (
             typeof currentElement === 'string' &&
-            textIndex >= currentTextIndex &&
+            insertingTextIndex >= currentTextIndex &&
             (
-                textIndex < currentTextIndex + currentElement.length ||
+                insertingTextIndex < currentTextIndex + currentElement.length ||
                 (
-                    textIndex === currentTextIndex + currentElement.length &&
+                    insertingTextIndex === currentTextIndex + currentElement.length &&
                     (
                         (
                             currentElementIndex === elements.length - 1 &&
@@ -293,8 +295,11 @@ const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, 
         )
         ||
         (
-            isValidElement(currentElement) &&
-            textIndex === currentTextIndex &&
+            (
+                isValidElement(currentElement) ||
+                Array.isArray(currentElement)
+            ) &&
+            insertingTextIndex === currentTextIndex &&
             (
                 (
                     position === 'before' &&
@@ -333,14 +338,14 @@ const shouldInsertOuterMost = ({ elements, currentElement, currentElementIndex, 
     )
 );
 
-const shouldInsertById = ({ currentElement, parent, id, textIndex, currentTextIndex }) => (
+const shouldInsertById = ({ currentElement, parent, id, insertingTextIndex, currentTextIndex }) => (
     (
         id == null || (parent != null && parent.props.id === id)
     )
     &&
     (
-        (typeof currentElement === 'string' && textIndex >= currentTextIndex && textIndex <= currentTextIndex + currentElement.length) ||
-        (isValidElement(currentElement) && textIndex === currentTextIndex)
+        (typeof currentElement === 'string' && insertingTextIndex >= currentTextIndex && insertingTextIndex <= currentTextIndex + currentElement.length) ||
+        (isValidElement(currentElement) && insertingTextIndex === currentTextIndex)
     )
 );
 
@@ -366,36 +371,41 @@ const shouldInsertById = ({ currentElement, parent, id, textIndex, currentTextIn
 // }
 
 // TO DO: WE ARE NOT TAKING ARRAY INTO ACCOUNT
-export function addElements(elements, content, textIndex, shouldInsert) {
+export function addElements(elements, content, insertingTextIndex, shouldInsert) {
     if (Array.isArray(elements) && elements.length === 0)
         return [content];
 
-    if(isValidElement(elements))
+    if (isValidElement(elements))
         elements = [elements];
 
     const totalLength = countCharacters(elements);
     let contentLength = countCharacters(content);
 
-    if (textIndex < 0)
-        textIndex = totalLength + textIndex;
-    else if (textIndex == null)
-        textIndex = totalLength;
+    if (insertingTextIndex < 0)
+        insertingTextIndex = totalLength + insertingTextIndex;
+    else if (insertingTextIndex == null)
+        insertingTextIndex = totalLength;
 
     let currentTextIndex = 0;
 
     if (content?.props?.id === 'cursor')
         contentLength = 0;
 
-    const _addElements = (elements, parent = null, depth = 0) => {
+    const _addElements = (_elements, parent = null, depth = 0) => {
+        if (!Array.isArray(_elements))
+            _elements = [_elements];
+
         const newElements = [];
 
-        Children.forEach(elements, (currentElement, currentElementIndex) => {
+        // CAUTION: Children.forEach automatically flattens the array and removes null and undefined elements
+        // Children.forEach(_elements, (currentElement, currentElementIndex) => {
+        _elements.map((currentElement, currentElementIndex) => {
             const _shouldInsert = (position) => shouldInsert({
                 elements,
                 parent,
                 currentElement,
                 currentElementIndex,
-                textIndex,
+                insertingTextIndex,
                 currentTextIndex,
                 depth,
                 totalLength,
@@ -406,8 +416,8 @@ export function addElements(elements, content, textIndex, shouldInsert) {
 
             if (typeof currentElement === 'string') {
                 if (_shouldInsert()) {
-                    const firstSlice = currentElement.slice(0, textIndex - currentTextIndex);
-                    const lastSlice = currentElement.slice(textIndex - currentTextIndex);
+                    const firstSlice = currentElement.slice(0, insertingTextIndex - currentTextIndex);
+                    const lastSlice = currentElement.slice(insertingTextIndex - currentTextIndex);
 
                     if (typeof content === 'string') {
                         newElements.push(`${firstSlice}${content}${lastSlice}`);
@@ -423,19 +433,36 @@ export function addElements(elements, content, textIndex, shouldInsert) {
                 }
 
                 currentTextIndex += currentElement.length;
+            } else if (Array.isArray(currentElement)) {
+                if (_shouldInsert("before")) {
+                    newElements.push(content);
+                    currentTextIndex += contentLength;
+                }
+
+                newElements.push(_addElements(currentElement, parent, depth + 1));
+
+                if (_shouldInsert("after")) {
+                    newElements.push(content);
+                    currentTextIndex += contentLength;
+                }
             } else if (isValidElement(currentElement)) {
                 if (_shouldInsert("before")) {
                     newElements.push(content);
                     currentTextIndex += contentLength;
                 }
 
+                if (currentElement.type === 'br')
+                    currentTextIndex += 1;
+
                 if (currentElement.props.children) {
                     const id = currentElement.props.id ?? uuidv4();
-                    newElements.push(cloneElement(
-                        currentElement,
-                        { id, key: id },
-                        _addElements(currentElement.props.children, currentElement, depth + 1)
-                    ));
+                    newElements.push(
+                        cloneElement(
+                            currentElement,
+                            { id, key: id },
+                            _addElements(currentElement.props.children, currentElement, depth + 1)
+                        )
+                    );
                 } else {
                     newElements.push(currentElement);
                 }
@@ -453,6 +480,7 @@ export function addElements(elements, content, textIndex, shouldInsert) {
     };
 
     const result = _addElements(elements);
+
     if (!Array.isArray(elements)) {
         if (result.length === 1)
             return result[0];

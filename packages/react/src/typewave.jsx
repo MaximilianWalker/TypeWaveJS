@@ -68,6 +68,7 @@ const TypeWave = forwardRef(({
 
 	const onType = () => setElements((prevElements) => {
 		const { value, instant, animation } = currentEvent;
+
 		if (instant)
 			return addElementsByPreference(prevElements, value, cursorIndex !== 0 ? cursorIndex : null, 'outerMost');
 
