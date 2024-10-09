@@ -456,7 +456,6 @@ describe('addElementsByPreference', () => {
         const nodes = addIdsToElements(<span>Hello</span>);
         const { container } = render(addElementsByPreference(nodes, ", test", 5, "outerMost"));
         const [firstSpan, middleText] = container.childNodes;
-        console.log(prettyDOM(container));
         expect(firstSpan.textContent).toBe("Hello");
         expect(middleText.textContent).toBe(", test");
     });
@@ -474,7 +473,6 @@ describe('addElementsByPreference', () => {
         const nodes = addIdsToElements(['Hello']);
         const insertingNodes = addIdsToElements([' world!']);
         const result = addElementsByPreference(nodes, insertingNodes, 5, "outerMost");
-        console.log(result);
         expect(result).toEqual(['Hello', [' world!']]);
     });
 
