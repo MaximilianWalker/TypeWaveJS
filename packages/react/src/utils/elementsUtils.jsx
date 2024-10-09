@@ -391,23 +391,22 @@ export function addElements(elements, content, insertingTextIndex, shouldInsert)
     if (content?.props?.id === 'cursor')
         contentLength = 0;
 
-    const _addElements = (_elements, parent = null, depth = 0) => {
+    const _addElements = (_elements, _parent = null, _depth = 0) => {
         if (!Array.isArray(_elements))
             _elements = [_elements];
 
         const newElements = [];
 
-        // CAUTION: Children.forEach automatically flattens the array and removes null and undefined elements
-        // Children.forEach(_elements, (currentElement, currentElementIndex) => {
         _elements.map((currentElement, currentElementIndex) => {
             const _shouldInsert = (position) => shouldInsert({
-                elements,
-                parent,
+                elements: _elements,
+                parent: _parent,
+                depth: _depth,
+
                 currentElement,
                 currentElementIndex,
                 insertingTextIndex,
                 currentTextIndex,
-                depth,
                 totalLength,
                 content,
                 contentLength,
@@ -439,7 +438,7 @@ export function addElements(elements, content, insertingTextIndex, shouldInsert)
                     currentTextIndex += contentLength;
                 }
 
-                newElements.push(_addElements(currentElement, parent, depth + 1));
+                newElements.push(_addElements(currentElement, _parent, _depth + 1));
 
                 if (_shouldInsert("after")) {
                     newElements.push(content);
@@ -460,7 +459,7 @@ export function addElements(elements, content, insertingTextIndex, shouldInsert)
                         cloneElement(
                             currentElement,
                             { id, key: id },
-                            _addElements(currentElement.props.children, currentElement, depth + 1)
+                            _addElements(currentElement.props.children, currentElement, _depth + 1)
                         )
                     );
                 } else {
