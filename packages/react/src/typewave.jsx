@@ -126,22 +126,22 @@ const TypeWave = forwardRef(({
 		if (deleteSpeed) setDeleteSpeed(deleteSpeed);
 	};
 
-	const getAnimationFunction = (type) => {
-		switch (type) {
+	const getAnimationFunction = () => {
+		switch (currentEvent.tyoe) {
 			case 'type':
 				return {
 					function: onType,
-					speed: currentEvent.delay ?? typeSpeed
+					speed: !currentEvent.instant ? currentEvent.delay ?? typeSpeed : 0
 				};
 			case 'move':
 				return {
 					function: onMove,
-					speed: currentEvent.delay ?? moveSpeed
+					speed: !currentEvent.instant ? currentEvent.delay ?? moveSpeed : 0
 				};
 			case 'delete':
 				return {
 					function: onDelete,
-					speed: currentEvent.delay ?? deleteSpeed
+					speed: !currentEvent.instant ? currentEvent.delay ?? deleteSpeed : 0
 				};
 			case 'pause':
 				return {
@@ -165,7 +165,7 @@ const TypeWave = forwardRef(({
 		const {
 			function: animationFunction,
 			speed: animationSpeed
-		} = getAnimationFunction(currentEvent.type);
+		} = getAnimationFunction();
 
 		intervalRef.current = setTimeout(() => {
 			if (animationFunction) animationFunction();
