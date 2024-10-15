@@ -175,7 +175,8 @@ const TypeWave = forwardRef(({
 		intervalRef.current = setTimeout(() => {
 			if (animationFunction) animationFunction();
 
-			if (['loop', 'options', 'execute']) return;
+			if (['loop', 'options', 'execute'].includes(currentEvent.type))
+				return;
 
 			const { type, animation, remove } = currentEvent;
 			const { index, size } = animation ?? {};
