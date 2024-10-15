@@ -127,21 +127,21 @@ const TypeWave = forwardRef(({
 	};
 
 	const getAnimationFunction = () => {
-		switch (currentEvent.tyoe) {
+		switch (currentEvent.type) {
 			case 'type':
 				return {
 					function: onType,
-					speed: !currentEvent.instant ? currentEvent.delay ?? typeSpeed : 0
+					speed: !currentEvent.instant ? (currentEvent.delay ?? typeSpeed) : 0
 				};
 			case 'move':
 				return {
 					function: onMove,
-					speed: !currentEvent.instant ? currentEvent.delay ?? moveSpeed : 0
+					speed: !currentEvent.instant ? (currentEvent.delay ?? moveSpeed) : 0
 				};
 			case 'delete':
 				return {
 					function: onDelete,
-					speed: !currentEvent.instant ? currentEvent.delay ?? deleteSpeed : 0
+					speed: !currentEvent.instant ? (currentEvent.delay ?? deleteSpeed) : 0
 				};
 			case 'pause':
 				return {
@@ -158,6 +158,11 @@ const TypeWave = forwardRef(({
 					function: onOptions,
 					speed: 0
 				};
+			case 'execute':
+				return {
+					function: currentEvent.value,
+					speed: 0
+				};
 		}
 	};
 
@@ -170,10 +175,10 @@ const TypeWave = forwardRef(({
 		intervalRef.current = setTimeout(() => {
 			if (animationFunction) animationFunction();
 
+			if (['loop', 'options', 'execute']) return;
+
 			const { type, animation, remove } = currentEvent;
 			const { index, size } = animation ?? {};
-
-			if (type === 'loop') return;
 
 			if (remove && (!animation || index >= size - 1)) {
 				setEvents((prevEvents) => prevEvents.filter((_, index) => index != eventIndex));
