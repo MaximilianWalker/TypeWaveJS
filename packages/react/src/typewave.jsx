@@ -175,17 +175,20 @@ const TypeWave = forwardRef(({
 		intervalRef.current = setTimeout(() => {
 			if (animationFunction) animationFunction();
 
-			if (['loop', 'options', 'execute'].includes(currentEvent.type))
+			// LOOP EVENT DOESN'T INCREMENT THE EVENT INDEX
+			if (currentEvent.type === 'loop')
 				return;
 
 			const { type, animation, remove } = currentEvent;
 			const { index, size } = animation ?? {};
 
+			// IF THE EVENT IS TO BE REMOVED AFTER COMPLETION, IF THERE IS NO ANIMATION OR IF THE ANIMATION IS FINISHED, THEN REMOVE THE EVENT
 			if (remove && (!animation || index >= size - 1)) {
 				setEvents((prevEvents) => prevEvents.filter((_, index) => index != eventIndex));
 				return;
 			}
 
+			// IF THERE IS NO ANIMATION, THEN MOVE TO THE NEXT EVENT
 			if (!animation) {
 				setEventIndex(eventIndex + 1);
 				return;
