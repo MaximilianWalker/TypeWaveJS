@@ -1,6 +1,6 @@
 {
   "name": "@typewavejs/react",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "",
   "author": "Diogo Marques Crava",
   "license": "MIT",
@@ -22,11 +22,9 @@
     "access": "public"
   },
   "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "uuid": "^9.0.1"
-  },
-  "peerDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.0",
@@ -39,8 +37,8 @@
     "eslint-plugin-react-refresh": "^0.4.6",
     "jsdom": "^24.1.0",
     "vite": "^5.2.13",
-    "vitest": "^1.6.0",
-    "vite-plugin-css-injected-by-js": "3.5.1"
+    "vite-plugin-css-injected-by-js": "3.5.1",
+    "vitest": "^1.6.0"
   },
   "keywords": [
     "TypeWaveJS",
