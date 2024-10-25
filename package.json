@@ -14,9 +14,5 @@
   "description": "",
   "workspaces": [
     "packages/*"
-  ],
-  "devDependencies": {
-    "eslint": "^8.15.0",
-    "prettier": "^2.7.1"
-  }
+  ]
 }
