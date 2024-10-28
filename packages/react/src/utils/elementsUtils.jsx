@@ -168,7 +168,7 @@ export function* iterateAnimation(elements) {
             yield {
                 index,
                 element: newElement,
-                parentId: entry.parent?.props.id
+                parentId: entries.length > 0 ? entries.at(-1)?.parent?.props.id : entry.parent?.props.id
             };
 
             entries = [];
