@@ -94,7 +94,7 @@ Events in `TypeWave JS` are defined as objects within the `events` array prop, e
   - `loop`: Repeats the animation sequence from the start.
   - `options`: Dynamically changes settings such as cursor character and typing speed during the animation.
 - **value** (`any`): The value associated with the event, which varies based on the event type (e.g., text/element for `type`, number of positions for `move`).
-- **delay** (`number`): Optional delay before the event starts, useful for timing adjustments between events.
+- **speed** (`number`): Optional speed before the event starts, useful for timing adjustments between events.
 - **instant** (`boolean`): When set to `true`, the event is executed immediately without any animated delay.
 - **remove** (`boolean`): When set to `true`, the event is removed from the animation queue once executed.
 

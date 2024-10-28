@@ -131,17 +131,17 @@ const TypeWave = forwardRef(({
 			case 'type':
 				return {
 					function: onType,
-					speed: !currentEvent.instant ? (currentEvent.delay ?? typeSpeed) : 0
+					speed: !currentEvent.instant ? (currentEvent.speed ?? typeSpeed) : 0
 				};
 			case 'move':
 				return {
 					function: onMove,
-					speed: !currentEvent.instant ? (currentEvent.delay ?? moveSpeed) : 0
+					speed: !currentEvent.instant ? (currentEvent.speed ?? moveSpeed) : 0
 				};
 			case 'delete':
 				return {
 					function: onDelete,
-					speed: !currentEvent.instant ? (currentEvent.delay ?? deleteSpeed) : 0
+					speed: !currentEvent.instant ? (currentEvent.speed ?? deleteSpeed) : 0
 				};
 			case 'pause':
 				return {
@@ -285,7 +285,7 @@ const TypeWave = forwardRef(({
 const eventShape = PropTypes.shape({
 	type: PropTypes.oneOf(EVENT_TYPES).isRequired,
 	value: PropTypes.any,
-	delay: PropTypes.number,
+	speed: PropTypes.number,
 	instant: PropTypes.bool,
 	remove: PropTypes.bool,
 	priority: PropTypes.bool
