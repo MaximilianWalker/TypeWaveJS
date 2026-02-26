@@ -2,6 +2,7 @@
   "name": "@typewavejs/monorepo",
   "private": true,
   "scripts": {
+    "bump:published": "node ./scripts/bump-versions-if-published.js",
     "publish": "node ./scripts/publish.js --workspaces --access public",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",

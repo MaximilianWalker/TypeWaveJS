@@ -60,7 +60,18 @@ async function publishPackages() {
     for (const file of packageFiles) {
         const dir = path.dirname(file);
         const packageJson = JSON.parse(fs.readFileSync(file, 'utf8'));
-        const { name: packageName, version } = packageJson;
+        const { name: packageName, version, private: isPrivate } = packageJson;
+        const hasBuildScript = typeof packageJson.scripts?.build === 'string' && packageJson.scripts.build.trim() !== '';
+
+        if (isPrivate) {
+            console.log(`Skipping private package ${packageName}`);
+            continue;
+        }
+
+        if (!hasBuildScript) {
+            console.log(`Skipping package without build script ${packageName}`);
+            continue;
+        }
 
         try {
             const exists = await versionExists(packageName, version);
