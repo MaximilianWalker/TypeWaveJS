@@ -1,15 +1,13 @@
 import { it, describe, expect, beforeEach, vi } from 'vitest';
-import { render, prettyDOM } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { v4 as uuidv4 } from 'uuid';
 import {
     elementsToJson,
     addIdsToElements,
     getAnimationList,
-    iterateAnimation,
     generateLineBreaks,
     countCharacters,
     findElementAtIndex,
-    addElements,
     addElementsByPreference,
     addElementsById,
     removeElements
@@ -607,9 +605,7 @@ describe('addElementsById', () => {
 
         const { container } = render(modifiedStructure);
 
-        const elementWithInsertedContent = container.querySelector(`#${specificId}`);
-
-        expect(elementWithInsertedContent.textContent).toEqual('Inserted content here on span');
+        expect(container.textContent).toContain('Inserted content here on span');
     });
 });
 

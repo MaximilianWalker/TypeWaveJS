@@ -2,9 +2,7 @@ import {
     addIdsToElements,
     getAnimationList,
     generateLineBreaks,
-    elementsToJson,
-    convertFragmentsToArrays,
-    getElementsList
+    convertFragmentsToArrays
 } from './elementsUtils';
 
 export const EVENT_TYPES = [
@@ -13,7 +11,8 @@ export const EVENT_TYPES = [
     'delete',
     'pause',
     'loop',
-    'options'
+    'options',
+    'execute'
 ];
 
 export function processEvent(event, priority = false) {

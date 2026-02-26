@@ -37,6 +37,8 @@ const TypeWave = forwardRef(({
 	...props
 }, ref) => {
 	const intervalRef = useRef();
+	const eventIndexRef = useRef(0);
+	const onAnimationRef = useRef();
 
 	const [initialized, setInitialized] = useState(false);
 
@@ -85,7 +87,7 @@ const TypeWave = forwardRef(({
 	});
 
 	const onMove = () => setCursorIndex((prevIndex) => {
-		const { value, instant, animation } = currentEvent;
+		const { value, instant } = currentEvent;
 
 		let newIndex = prevIndex;
 		if (instant)
@@ -173,6 +175,9 @@ const TypeWave = forwardRef(({
 		} = getAnimationFunction();
 
 		intervalRef.current = setTimeout(() => {
+			if (onAnimationProp)
+				onAnimationProp(currentEvent, eventIndex);
+
 			if (animationFunction) animationFunction();
 
 			// LOOP EVENT DOESN'T INCREMENT THE EVENT INDEX
@@ -220,12 +225,18 @@ const TypeWave = forwardRef(({
 		}, animationSpeed);
 	};
 
+	onAnimationRef.current = onAnimation;
+
 	const cancelAnimation = () => {
 		if (intervalRef.current) {
 			clearTimeout(intervalRef.current);
 			intervalRef.current = null;
 		}
 	};
+
+	useEffect(() => {
+		eventIndexRef.current = eventIndex;
+	}, [eventIndex]);
 
 	useEffect(() => {
 		setInitialized(true);
@@ -237,7 +248,7 @@ const TypeWave = forwardRef(({
 
 	useEffect(() => {
 		if (play && !intervalRef.current && currentEvent)
-			onAnimation();
+			onAnimationRef.current();
 		else if (!play && intervalRef.current)
 			cancelAnimation();
 
@@ -251,16 +262,18 @@ const TypeWave = forwardRef(({
 			onEventProp(currentEvent, eventIndex);
 		if (onEndProp && eventIndex === events.length)
 			onEndProp();
-	}, [currentEvent, onEventProp, onEndProp]);
+	}, [currentEvent, eventIndex, events.length, initialized, onEventProp, onEndProp]);
 
 	useEffect(() => {
 		if (!priorityEventsProp) return;
+
+		const insertionIndex = eventIndexRef.current;
 
 		setEvents((prevEvents) => {
 			const newEvents = [...prevEvents];
 			const priorityEvents = processEvents(priorityEventsProp, true);
 			const priorityIndex = newEvents.findLastIndex(event => event.priority);
-			newEvents.splice(priorityIndex >= 0 ? priorityIndex + 1 : eventIndex, 0, ...priorityEvents);
+			newEvents.splice(priorityIndex >= 0 ? priorityIndex + 1 : insertionIndex, 0, ...priorityEvents);
 			return newEvents;
 		});
 	}, [priorityEventsProp]);
@@ -290,6 +303,8 @@ const eventShape = PropTypes.shape({
 	remove: PropTypes.bool,
 	priority: PropTypes.bool
 });
+
+TypeWave.displayName = 'TypeWave';
 
 TypeWave.propTypes = {
 	play: PropTypes.bool,

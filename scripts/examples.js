@@ -2,15 +2,10 @@ const fs = require('fs');
 const { exec, spawn } = require('child_process');
 const path = require('path');
 
-const packageName = process.argv[2];
+const packageName = process.argv[2] || 'react';
 // const searchTerm = process.argv[3];
 
 process.chdir(path.resolve(__dirname, '..'));
-
-if (!packageName) {
-    console.error('Please provide a package name.');
-    process.exit(1);
-}
 
 const packageDir = path.join(process.cwd(), 'packages', packageName);
 const examplesDir = path.join(packageDir, 'examples');

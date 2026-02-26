@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "Diogo Marques Crava",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "workspaces": [
     "packages/*"

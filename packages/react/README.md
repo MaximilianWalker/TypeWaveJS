@@ -86,14 +86,15 @@ The `TypeWave JS` library offers a robust set of properties (props) that allow d
 
 Events in `TypeWave JS` are defined as objects within the `events` array prop, each detailing specific actions in the animation sequence. The structure of these events allows for a wide variety of animations:
 
-- **type** (`string`): Describes the animation event type with supported values such as `type`, `move`, `delete`, `pause`, `loop`, and `options`. Each type dictates the behavior of the animation:
+- **type** (`string`): Describes the animation event type with supported values such as `type`, `move`, `delete`, `pause`, `loop`, `options`, and `execute`. Each type dictates the behavior of the animation:
   - `type`: Inserts the specified content (text or React elements) at the current cursor position.
   - `move`: Shifts the cursor a specified number of positions.
   - `delete`: Removes content starting from the current cursor position.
   - `pause`: Halts the animation for a specified duration.
   - `loop`: Repeats the animation sequence from the start.
   - `options`: Dynamically changes settings such as cursor character and typing speed during the animation.
-- **value** (`any`): The value associated with the event, which varies based on the event type (e.g., text/element for `type`, number of positions for `move`).
+  - `execute`: Runs a callback function immediately as part of the event sequence.
+- **value** (`any`): The value associated with the event, which varies based on the event type (e.g., text/element for `type`, number of positions for `move`, function for `execute`).
 - **speed** (`number`): Optional speed before the event starts, useful for timing adjustments between events.
 - **instant** (`boolean`): When set to `true`, the event is executed immediately without any animated delay.
 - **remove** (`boolean`): When set to `true`, the event is removed from the animation queue once executed.
