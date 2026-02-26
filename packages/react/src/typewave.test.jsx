@@ -217,4 +217,23 @@ describe('TypeWave component', () => {
     await advance(5);
     expect(container.textContent).toBe('Helo');
   });
+
+  it('clamps oversized left move to text start before typing', async () => {
+    const { container } = render(
+      <TypeWave
+        showCursor={false}
+        events={[
+          { type: 'type', value: 'Hello', instant: true },
+          { type: 'move', value: -999, instant: true },
+          { type: 'type', value: 'X', instant: true }
+        ]}
+      />
+    );
+
+    await advance(0);
+    await advance(0);
+    await advance(0);
+
+    expect(container.textContent).toBe('XHello');
+  });
 });

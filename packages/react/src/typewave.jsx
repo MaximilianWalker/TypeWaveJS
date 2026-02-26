@@ -100,7 +100,7 @@ const TypeWave = forwardRef(({
 		if (newIndex > 0)
 			return 0;
 		else if (Math.abs(newIndex) > elementsSize)
-			return elementsSize;
+			return -elementsSize;
 
 		return newIndex;
 	});
@@ -122,10 +122,10 @@ const TypeWave = forwardRef(({
 
 	const onOptions = () => {
 		const { cursorCharacter, typeSpeed, moveSpeed, deleteSpeed } = currentEvent;
-		if (cursorCharacter) setCursorCharacter(cursorCharacter);
-		if (typeSpeed) setTypeSpeed(typeSpeed);
-		if (moveSpeed) setMoveSpeed(moveSpeed);
-		if (deleteSpeed) setDeleteSpeed(deleteSpeed);
+		if (cursorCharacter != null) setCursorCharacter(cursorCharacter);
+		if (typeSpeed != null) setTypeSpeed(typeSpeed);
+		if (moveSpeed != null) setMoveSpeed(moveSpeed);
+		if (deleteSpeed != null) setDeleteSpeed(deleteSpeed);
 	};
 
 	const getAnimationFunction = () => {
