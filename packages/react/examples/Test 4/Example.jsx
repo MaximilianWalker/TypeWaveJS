@@ -10,7 +10,7 @@ const events = [
         type: "type",
         value: [
             "Sure thing! Here's a little snippet of React code, color-coded for your aesthetic enjoyment.\n\n",
-            <pre>
+            <pre key="example-code">
                 <code>
                     <span style={{ color: '#569cd6' }}>import</span>{' '}
                     <span style={{ color: '#569cd6' }}>React</span>{' '}

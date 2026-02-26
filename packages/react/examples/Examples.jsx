@@ -7,7 +7,7 @@ const examples = Object.keys(modules).map((key) => ({
 }));
 
 function Examples() {
-    const [name, setName] = useState();
+    const [, setName] = useState();
     const [Component, setComponent] = useState();
 
     const loadComponent = async (example) => {
@@ -52,6 +52,6 @@ function Examples() {
             </div>
         </div>
     );
-};
+}
 
 export default Examples;

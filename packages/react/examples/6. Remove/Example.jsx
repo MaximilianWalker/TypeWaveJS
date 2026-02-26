@@ -31,7 +31,7 @@ const animation = [
 ];
 
 function Example() {
-    const [events, setEvents] = useState(animation);
+    const [events] = useState(animation);
 
     return (
         <TypeWave
