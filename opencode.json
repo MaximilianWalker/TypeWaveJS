@@ -1,0 +1,38 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "AGENTS.md",
+    "README.md",
+    "packages/react/README.md",
+    "packages/vanilla/README.md"
+  ],
+  "command": {
+    "react-test": {
+      "description": "Run React package tests",
+      "template": "Run `npm --workspace @typewavejs/react run test` and summarize failures with concrete fixes."
+    },
+    "react-build": {
+      "description": "Build React package",
+      "template": "Run `npm --workspace @typewavejs/react run build` and report any build errors."
+    },
+    "workspace-test": {
+      "description": "Run workspace test suite",
+      "template": "Run `npm run test` and summarize the overall result and any failing package."
+    },
+    "workspace-build": {
+      "description": "Run workspace builds",
+      "template": "Run `npm run build` and summarize package-level build status."
+    },
+    "react-examples": {
+      "description": "Run React examples app",
+      "template": "Run `npm run react` and report startup status plus any runtime errors shown in the terminal."
+    }
+  },
+  "watcher": {
+    "ignore": [
+      ".git/**",
+      "node_modules/**",
+      "packages/react/dist/**"
+    ]
+  }
+}
