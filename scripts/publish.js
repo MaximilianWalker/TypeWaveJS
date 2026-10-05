@@ -17,13 +17,18 @@ function versionExists(packageName, version) {
         });
 
         let output = '';
+        let errorOutput = '';
         npmView.stdout.on('data', data => output += data.toString());
+        npmView.stderr.on('data', data => errorOutput += data.toString());
 
         npmView.on('close', code => {
-            if (code === 0 && output.trim() === version) {
-                resolve(true);
-            } else {
+            if (code === 0) {
+                resolve(output.trim() === version);
+            } else if (/\bE404\b/.test(errorOutput)) {
+                // The package or this version is not on npm yet.
                 resolve(false);
+            } else {
+                reject(new Error(`npm view exited with code ${code}: ${errorOutput.trim()}`));
             }
         });
 
@@ -83,6 +88,7 @@ async function publishPackages() {
             }
         } catch (error) {
             console.error(`An error occurred while checking or publishing ${packageName}@${version}: ${error}`);
+            process.exitCode = 1;
         }
     }
 }
