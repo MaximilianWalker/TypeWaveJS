@@ -36,6 +36,10 @@ This monorepo includes a series of independent packages, each designed for speci
 - **[@typewavejs/vanilla](/packages/vanilla) (Coming Soon)**: A specialized version of TypeWave JS designed for vanilla JavaScript applications, with no dependencies on other frameworks or libraries.
 - **[@typewavejs/react](/packages/react)**: A fully independent implementation of TypeWave JS for React applications.
 
+## Releasing
+
+Work lands on `dev`; a release is a pull request from `dev` into `main`. CI never commits a version bump, so bump the version on `dev` before opening the release PR: set `version` in `packages/<name>/package.json` (or run `npm run bump:published` to patch-bump every package whose current version is already on npm), then run `npm install --package-lock-only` and commit both files. When the PR merges, the `Publish Packages` workflow lints, tests and builds, then publishes each package whose version is not on npm yet, using the `NPM_TOKEN` repository secret.
+
 ## Author
 **[Diogo Marques Crava](https://diogocrava.dev)**
 

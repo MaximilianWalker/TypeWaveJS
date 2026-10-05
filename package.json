@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "bump:published": "node ./scripts/bump-versions-if-published.js",
-    "publish": "node ./scripts/publish.js --workspaces --access public",
+    "publish": "node ./scripts/publish.js --access public",
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
     "examples": "node ./scripts/examples.js",
